@@ -166,6 +166,25 @@ if ($action && is_post()) {
         redirect('/admin.php?p=settings');
     }
 
+    if ($action === 'send_test_email') {
+        require_role('superadmin');
+        $to = trim((string) input('test_email'));
+        if (!valid_email($to)) {
+            flash('Please enter a valid test recipient address.', 'error');
+            redirect('/admin.php?p=settings');
+        }
+        $mailer = new Mailer();
+        $body = '<p style="font-size:14px;line-height:1.6">This is a test email confirming your SMTP / email settings are working correctly.</p>'
+            . '<p style="font-size:13px;color:#5A6478">Sent ' . esc(date('r')) . '.</p>';
+        if ($mailer->send($to, 'Galilea — test email', email_template('Email configuration test', $body))) {
+            log_activity('email_test', 'Test email sent to ' . $to);
+            flash('Test email sent to ' . $to . '. Check the inbox (and spam).');
+        } else {
+            flash('Test email failed: ' . $mailer->lastError(), 'error');
+        }
+        redirect('/admin.php?p=settings');
+    }
+
     if ($action === 'inquiry_status') {
         require_access('inquiries');
         Database::run('UPDATE inquiries SET status = ? WHERE id = ?',

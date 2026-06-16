@@ -20,6 +20,7 @@ require __DIR__ . '/lib/Database.php';
 require __DIR__ . '/lib/site.php';
 require __DIR__ . '/lib/seo.php';
 require __DIR__ . '/lib/Totp.php';
+require __DIR__ . '/lib/Mailer.php';
 
 Database::init($config);
 

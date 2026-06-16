@@ -15,10 +15,13 @@ content-management portal.
   promo cell — fully accessible (keyboard, `aria-expanded`, ESC/outside-click to
   close) with a mobile accordion version.
 - **Clean URL routing** with real pages: services listing + detail, insights
-  listing (paginated) + article, contact/quote, track, and CMS pages
-  (about/careers/privacy/terms/cookies), plus a branded 404.
+  listing (paginated, **filterable by category**) + article, contact/quote,
+  track, and CMS pages (about/careers/privacy/terms/cookies), plus a branded 404.
 - Hero slider, services grid, live shipment **Track & Trace**, stats, news,
-  leadership team, testimonials slider, quote form, newsletter — all from the DB.
+  leadership team, testimonials slider, newsletter — all from the DB.
+- **Multi-step quote wizard** on the contact page (service & route → details →
+  contact), with per-step validation and a no-JS fallback that degrades to a
+  single form.
 - **UX & accessibility:** skip-to-content link, visible focus styles, ARIA on
   menus/sliders/forms, breadcrumbs, **accessible floating-label forms**,
   **global toasts**, **skeleton loaders**, `prefers-reduced-motion`, and a
@@ -26,6 +29,7 @@ content-management portal.
 - **Engagement:** site search overlay (`/` shortcut) with a results page,
   scroll/reading-progress bar, a floating **WhatsApp** button, and a mobile
   sticky action bar (Track / Call / Quote).
+- **Dark mode** — a persisted, no-flash theme toggle in the nav (site-wide).
 - **Design system:** CSS custom-property tokens (color, spacing, radius,
   shadow, motion, type) underpin both the site and admin styles.
 - Loads fast: lazy-loaded images, deferred JS, font preconnect, browser caching.
@@ -35,36 +39,53 @@ content-management portal.
 ### Admin portal (`/admin.php`)
 - Secure login with bcrypt password hashing, session hardening, and per-IP
   **login rate limiting**.
-- Dashboard with live content/engagement counts and an audit trail.
+- Dashboard with live content/engagement counts, **trend & status charts**
+  (dependency-free), and an audit trail.
 - Full CRUD for **Hero Slides, Services, News & Insights, Testimonials, Team
   Members, Shipments, FAQs, Static Pages, and the Navigation Menu** (build the
   mega-menu: top-level headings + child links with icons, columns and order).
 - **Inquiries** inbox (with status workflow) and **Newsletter Subscribers**.
+- **Email notifications** — new inquiries trigger an admin alert + optional
+  customer auto-reply, sent via a dependency-free SMTP client (STARTTLS/SSL) or
+  the server's `mail()`. All configured in **Site Settings → Email / SMTP**,
+  with a one-click **test-email** button.
 - **Site Settings** (contacts, stats, SEO), **Admin Users** (super-admin only),
   and **Activity Logs**.
 - **Image uploads via drag-and-drop** (no external links) with strict MIME/size
   validation, plus a **Media Library** (browse, copy URL, delete).
 - **List management:** per-section search, pagination, **bulk delete**, and
   **drag-to-reorder** for ordered content; toasts and responsive card tables.
+- **Dark mode** — a persisted, no-flash theme toggle for the admin dashboard.
+- **Motion & a11y:** subtle hover/press micro-interactions, `aria-current` on
+  the active nav, and AA-tuned text contrast (all under `prefers-reduced-motion`).
 - **Summernote** rich-text editor for long-form content (service descriptions,
   news bodies).
 
 ---
 
 ## Requirements
-- PHP **8.1+** with `pdo_sqlite`, `fileinfo`, `mbstring`, and `dom` extensions
-  (all standard).
+- PHP **8.1+** with `pdo_sqlite`, `fileinfo`, `mbstring`, `curl`, and `dom`
+  extensions (all standard).
 - No Composer dependencies, no build step.
+
+## Tests
+A dependency-free smoke-test suite boots the app on a throwaway port + database
+and asserts the public site, admin portal and security rules over HTTP:
+```bash
+php tests/run.php   # exits non-zero if any check fails
+```
+See [`tests/README.md`](tests/README.md) for coverage.
 
 ## Running locally
 ```bash
 # from the project root — the router enables clean URLs on the built-in server
-php -S 127.0.0.1:8000 -t public public/router.php
+php -S 127.0.0.1:8000 router.php
 ```
 Then open <http://127.0.0.1:8000/>. The database and schema are created
 automatically on first request (`data/galilea.sqlite`) and seeded with demo
-content. (Under Apache the root/`public` `.htaccess` handles routing; the
-`router.php` shim is only needed for PHP's built-in dev server.)
+content. (Under Apache the root `.htaccess` handles routing; the `router.php`
+shim is only needed for PHP's built-in dev server. Both block direct access to
+`app/` and `data/`.)
 
 ### Public routes
 `/` · `/services` · `/services/{slug}` · `/insights` · `/insights/{slug}` ·
@@ -72,12 +93,25 @@ content. (Under Apache the root/`public` `.htaccess` handles routing; the
 `/cookies` (and any active page slug) — unknown URLs render a branded 404.
 
 ## Deploying (Apache / shared hosting)
-- Point the document root at the `public/` directory **(recommended)**, or
-- Drop the whole folder in place — the root `.htaccess` rewrites requests into
-  `public/` and blocks access to `app/` and `data/`.
+The repository root is the web root (document root). Drop the whole folder in
+place and point the document root at it — the root `.htaccess` provides
+clean-URL routing and **denies direct access to `app/` and `data/`** (which now
+live inside the web root). Belt-and-suspenders `.htaccess` files in `app/` and
+`data/` deny access on their own as well.
 
-The `app/` and `data/` directories must **not** be web-accessible. Ensure
-`data/` and `public/uploads/` are writable by the web server.
+### nginx
+A ready-to-use server block ships at **[`deploy/nginx.conf`](deploy/nginx.conf)**
+(see [`deploy/README.md`](deploy/README.md) for the install steps). Edit
+`server_name`, `root`, and the `fastcgi_pass` PHP-FPM socket, then symlink it
+into `sites-enabled` and reload. It enforces the same protections as Apache:
+clean-URL routing to `index.php`, 403 on `app/`/`data/`/`deploy/` and dotfiles,
+no PHP execution under `/uploads/`, asset caching, and baseline security
+headers. For TLS, run `certbot --nginx`.
+
+> **Note:** the `app/` and `data/` directories must never be web-accessible.
+> The bundled Apache (`.htaccess`) and nginx (`deploy/nginx.conf`) rules handle
+> this; the dev `router.php` does too. Ensure `data/` and `uploads/` are
+> writable by the web-server user.
 
 ## First login
 | | |
@@ -124,11 +158,11 @@ geo coordinates, legal name) are editable under **Site Settings**.
 - **Cache-busting** — CSS/JS are served with a content-version query string so
   browsers cache aggressively yet always pick up new builds instantly.
 - **Asset caching** — long-lived `Expires`/cache headers for static assets via
-  `public/.htaccess`; lazy-loaded images and deferred JS site-wide.
+  the root `.htaccess`; lazy-loaded images and deferred JS site-wide.
 
 > **Deployment note:** the admin rich-text editor (Summernote), jQuery and the
 > 2FA QR helper load from the cdnjs CDN. In locked-down/offline environments,
-> download those files into `public/assets/vendor/` and update the references in
+> download those files into `assets/vendor/` and update the references in
 > `app/views/admin/layout_top.php` / `layout_bottom.php` / `account.php`, then
 > drop `cdnjs.cloudflare.com` from the CSP in `app/lib/helpers.php`.
 
@@ -148,7 +182,7 @@ geo coordinates, legal name) are editable under **Site Settings**.
   rate-limiting on the public track/inquiry/newsletter endpoints (HTTP 429).
 - **Uploads** — real MIME type detected with `finfo` + `getimagesize`,
   randomised filenames, size cap, and script execution disabled in
-  `public/uploads/` via `.htaccess`.
+  `uploads/` via `.htaccess`.
 - **Headers** — Content-Security-Policy (auto-widened only when analytics is
   enabled), HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
   `Referrer-Policy`, `Permissions-Policy`.
@@ -158,18 +192,22 @@ geo coordinates, legal name) are editable under **Site Settings**.
 - **Auditing** — admin actions recorded to the activity log.
 
 ## Project layout
+The repository root **is** the web root. Application code (`app/`) and the
+database (`data/`) sit inside it but are blocked from direct web access by
+`.htaccess` rules (and `router.php` on the dev server).
 ```
 galilea_v2/
-├── public/                  # web root (document root)
-│   ├── index.php            # public site + JSON API (track/inquiry/newsletter)
-│   ├── admin.php            # admin front controller (auth + routing)
-│   ├── assets/              # css, js, images, logo
-│   └── uploads/             # drag-and-drop image uploads (runtime)
-├── app/
+├── index.php                # public site + JSON API (track/inquiry/newsletter)
+├── admin.php                # admin front controller (auth + routing)
+├── router.php               # clean-URL shim for PHP's built-in dev server
+├── .htaccess                # routing, caching, and app/ + data/ access denial
+├── assets/                  # css, js, images, logo
+├── uploads/                 # drag-and-drop image uploads (runtime)
+├── app/                     # (web-denied) application code
 │   ├── bootstrap.php        # config, DB init, session
 │   ├── config.php           # settings (env-overridable)
 │   ├── lib/                 # Database.php, helpers.php (security/uploads/auth)
 │   ├── admin/               # resources.php (schema) + engine.php (CRUD)
 │   └── views/               # public/ and admin/ templates
-└── data/                    # SQLite database (created at runtime)
+└── data/                    # (web-denied) SQLite database (created at runtime)
 ```

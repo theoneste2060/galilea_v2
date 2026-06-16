@@ -10,9 +10,11 @@ $st = site_settings();
 $g = fn(string $k, string $d = '') => esc($st[$k] ?? $d);
 $menu = nav_menu();
 $here = current_path();
+$isCur = fn(string $u): string => ('/' . trim($u, '/')) === $here ? ' aria-current="page"' : '';
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/assets/js/theme.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= esc($pageTitle) ?></title>
@@ -105,14 +107,18 @@ $here = current_path();
             </div>
           </li>
           <?php else: ?>
-          <li class="nav-item" role="none"><a href="<?= esc($top['url']) ?>" class="nav-link-btn" role="menuitem"><?= esc($top['title']) ?></a></li>
+          <li class="nav-item" role="none"><a href="<?= esc($top['url']) ?>" class="nav-link-btn<?= $isCur($top['url']) ? ' is-current' : '' ?>"<?= $isCur($top['url']) ?> role="menuitem"><?= esc($top['title']) ?></a></li>
           <?php endif; ?>
         <?php endforeach; ?>
-        <li class="nav-item" role="none"><a href="/track" class="nav-link-btn" role="menuitem">Track &amp; Trace</a></li>
+        <li class="nav-item" role="none"><a href="/track" class="nav-link-btn<?= $here === '/track' ? ' is-current' : '' ?>"<?= $here === '/track' ? ' aria-current="page"' : '' ?> role="menuitem">Track &amp; Trace</a></li>
       </ul>
 
       <div class="nav-right">
         <button class="search-toggle" id="searchToggle" aria-label="Search" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></button>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+          <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
         <a href="/admin.php" class="nav-btn-ghost">Sign In</a>
         <a href="/contact" class="nav-btn-primary">Get a Quote</a>
         <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">

@@ -50,8 +50,10 @@ $titles = array_merge(
 $pageTitle = $titles[$p] ?? ($resources[$p]['label'] ?? 'Dashboard');
 
 function nav_item(string $key, array $item, string $current): string {
-    $active = $key === $current ? ' active' : '';
-    return '<a class="nav-item' . $active . '" href="/admin.php?p=' . esc($key) . '">'
+    $isActive = $key === $current;
+    $active = $isActive ? ' active' : '';
+    $aria = $isActive ? ' aria-current="page"' : '';
+    return '<a class="nav-item' . $active . '"' . $aria . ' href="/admin.php?p=' . esc($key) . '">'
         . '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' . $item[1] . '</svg>'
         . '<span class="nit">' . esc($item[0]) . '</span></a>';
 }
@@ -64,6 +66,7 @@ function nav_item(string $key, array $item, string $current): string {
 <link rel="icon" href="/assets/img/logo.jpeg">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-lite.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+<script src="/assets/js/theme.js"></script>
 <link rel="stylesheet" href="<?= esc(asset_url('/assets/css/admin.css')) ?>">
 </head>
 <body>
@@ -103,6 +106,10 @@ function nav_item(string $key, array $item, string $current): string {
   <div class="topbar">
     <div class="bc"><span class="bc-h">Admin</span><span class="bc-s">/</span><span class="bc-c"><?= esc($pageTitle) ?></span></div>
     <div class="topbar-right">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+        <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
       <span class="tb-badge"><?= esc($admin['role']) ?></span>
       <a href="/" target="_blank" class="btn btn-ghost btn-sm" style="text-decoration:none">View Site</a>
     </div>

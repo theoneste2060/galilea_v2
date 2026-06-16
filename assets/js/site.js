@@ -227,20 +227,145 @@
         .finally(function () { if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label; } });
     });
   }
+  // ── QUOTE WIZARD (progressive enhancement of the contact form) ──
+  (function () {
+    var form = $('.quote-wizard');
+    if (!form) return;
+    var steps = Array.prototype.slice.call(form.querySelectorAll('.wiz-step'));
+    var inds = Array.prototype.slice.call(form.querySelectorAll('.wiz-ind'));
+    var back = form.querySelector('.wiz-back'), next = form.querySelector('.wiz-next'), submit = form.querySelector('.wiz-submit');
+    if (steps.length < 2) return;
+    form.classList.add('wizard-on');
+    var cur = 0;
+
+    function show(i) {
+      cur = i;
+      steps.forEach(function (s, n) { s.hidden = n !== i; });
+      inds.forEach(function (el, n) { el.classList.toggle('active', n === i); el.classList.toggle('done', n < i); });
+      back.hidden = i === 0;
+      next.hidden = i === steps.length - 1;
+      submit.hidden = i !== steps.length - 1;
+      var f = steps[i].querySelector('input,select,textarea');
+      if (f) setTimeout(function () { f.focus(); }, 40);
+    }
+    function validStep(i) {
+      var ok = true;
+      steps[i].querySelectorAll('[required]').forEach(function (f) {
+        var good = f.checkValidity() && f.value.trim() !== '';
+        f.classList.toggle('field-invalid', !good);
+        if (!good && ok) { f.focus(); ok = false; }
+      });
+      return ok;
+    }
+    next.addEventListener('click', function () { if (validStep(cur)) show(cur + 1); });
+    back.addEventListener('click', function () { show(cur - 1); });
+    // Clear the invalid state as the user fixes a field.
+    form.addEventListener('input', function (e) { if (e.target.classList) e.target.classList.remove('field-invalid'); });
+
+    // Fold the route/cargo details into the message before the AJAX submit runs.
+    form.addEventListener('submit', function (e) {
+      if (!validStep(cur)) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+      var msg = form.querySelector('#c_msg');
+      if (!msg || msg.dataset.composed) return;
+      var get = function (id) { var el = form.querySelector(id); return el ? el.value.trim() : ''; };
+      var lines = [];
+      var route = [get('#c_origin'), get('#c_dest')].filter(Boolean).join(' → ');
+      if (route) lines.push('Route: ' + route);
+      if (get('#c_cargo')) lines.push('Cargo: ' + get('#c_cargo'));
+      if (get('#c_weight')) lines.push('Weight/volume: ' + get('#c_weight'));
+      if (lines.length) { msg.value = lines.join('\n') + '\n\n' + msg.value; msg.dataset.composed = '1'; }
+    }, true); // capture: run before ajaxForm's handler
+
+    // After a successful send ajaxForm resets the form — return to step 1.
+    form.addEventListener('reset', function () {
+      var msg = form.querySelector('#c_msg');
+      if (msg) delete msg.dataset.composed;
+      setTimeout(function () { show(0); }, 0);
+    });
+
+    show(0);
+  })();
+
   ajaxForm('inquiryForm', 'inquiryMsg', 'inquiry');
   ajaxForm('newsletterForm', 'newsletterMsg', 'newsletter');
 
-  // ── SEARCH OVERLAY ──
+  // ── THEME TOGGLE (dark mode) ──
+  (function () {
+    var btn = $('#themeToggle');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('galilea_theme', next); } catch (e) {}
+    });
+  })();
+
+  // ── SEARCH OVERLAY + TYPEAHEAD ──
   (function () {
     var toggle = $('#searchToggle'), overlay = $('#searchOverlay'), input = $('#searchInput');
     if (!toggle || !overlay) return;
     function open() { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; setTimeout(function () { if (input) input.focus(); }, 60); }
-    function close() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+    function close() { overlay.classList.remove('open'); document.body.style.overflow = ''; clear(); }
     toggle.addEventListener('click', open);
     overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+
+    // Suggestions dropdown.
+    var box = overlay.querySelector('.search-box');
+    var sug = document.createElement('div');
+    sug.className = 'search-suggest';
+    sug.setAttribute('role', 'listbox');
+    if (box) box.appendChild(sug);
+    var items = [], active = -1, timer = null, lastQ = '';
+
+    function clear() { sug.innerHTML = ''; sug.classList.remove('show'); items = []; active = -1; }
+    function highlight(text, q) {
+      var i = text.toLowerCase().indexOf(q.toLowerCase());
+      if (i < 0) return esc(text);
+      return esc(text.slice(0, i)) + '<mark>' + esc(text.slice(i, i + q.length)) + '</mark>' + esc(text.slice(i + q.length));
+    }
+    function render(results, q) {
+      if (!results.length) { sug.innerHTML = '<div class="sg-empty">No matches — press Enter to search anyway.</div>'; sug.classList.add('show'); items = []; active = -1; return; }
+      sug.innerHTML = results.map(function (r, i) {
+        return '<a class="sg-item" role="option" href="' + esc(r.url) + '" data-i="' + i + '">' +
+          '<span class="sg-kind">' + esc(r.kind) + '</span>' +
+          '<span class="sg-title">' + highlight(r.title, q) + '</span></a>';
+      }).join('');
+      sug.classList.add('show');
+      items = Array.prototype.slice.call(sug.querySelectorAll('.sg-item'));
+      active = -1;
+      items.forEach(function (el) { el.addEventListener('mouseenter', function () { setActive(items.indexOf(el)); }); });
+    }
+    function setActive(i) {
+      if (active >= 0 && items[active]) items[active].classList.remove('active');
+      active = i;
+      if (active >= 0 && items[active]) items[active].classList.add('active');
+    }
+    function query(q) {
+      fetch('/search?ajax=1&q=' + encodeURIComponent(q), { headers: { 'X-Requested-With': 'fetch' } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { if (input.value.trim() === q) render(j.results || [], q); })
+        .catch(function () { clear(); });
+    }
+    if (input) {
+      input.setAttribute('role', 'combobox');
+      input.setAttribute('aria-autocomplete', 'list');
+      input.addEventListener('input', function () {
+        var q = input.value.trim();
+        if (q === lastQ) return; lastQ = q;
+        clearTimeout(timer);
+        if (q.length < 2) { clear(); return; }
+        timer = setTimeout(function () { query(q); }, 180);
+      });
+      input.addEventListener('keydown', function (e) {
+        if (!items.length) return;
+        if (e.key === 'ArrowDown') { e.preventDefault(); setActive((active + 1) % items.length); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); setActive((active - 1 + items.length) % items.length); }
+        else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); window.location.href = items[active].href; }
+      });
+    }
+
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && overlay.classList.contains('open')) close();
-      // Quick-open with "/" when not typing in a field.
       if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) { e.preventDefault(); open(); }
     });
   })();
