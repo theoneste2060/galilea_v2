@@ -63,7 +63,7 @@ function nav_item(string $key, array $item, string $current): string {
 <link rel="icon" href="/assets/img/logo.jpeg">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-lite.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-<link rel="stylesheet" href="/assets/css/admin.css">
+<link rel="stylesheet" href="<?= esc(asset_url('/assets/css/admin.css')) ?>">
 </head>
 <body>
 <aside class="sidebar" id="sb">

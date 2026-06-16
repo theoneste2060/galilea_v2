@@ -45,6 +45,6 @@ $footServices = Database::all('SELECT title, slug FROM services WHERE is_active 
 
 <button id="btt" aria-label="Back to top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 15l7-7 7 7"/></svg></button>
 
-<script src="/assets/js/site.js" defer></script>
+<script src="<?= esc(asset_url('/assets/js/site.js')) ?>" defer></script>
 </body>
 </html>

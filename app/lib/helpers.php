@@ -305,19 +305,78 @@ function handle_image_upload(string $field, array $config): ?string
         throw new RuntimeException('File is not a valid image.');
     }
 
-    $ext  = $allowed[$mime];
-    $name = bin2hex(random_bytes(16)) . '.' . $ext;
     $dir  = $config['upload_dir'];
     if (!is_dir($dir)) {
         mkdir($dir, 0775, true);
     }
+    $base = bin2hex(random_bytes(16));
+    $urlBase = rtrim($config['upload_url'], '/');
+
+    // Optimise raster images to WebP (smaller, faster) when GD supports it.
+    // Animated GIFs are kept as-is to preserve animation.
+    if ($mime !== 'image/gif' && function_exists('imagewebp')) {
+        $optimised = optimise_to_webp($file['tmp_name'], $mime, $dir . '/' . $base . '.webp');
+        if ($optimised) {
+            @chmod($dir . '/' . $base . '.webp', 0644);
+            return $urlBase . '/' . $base . '.webp';
+        }
+    }
+
+    // Fallback: store the original (validated) file unchanged.
+    $name = $base . '.' . $allowed[$mime];
     $dest = $dir . '/' . $name;
     if (!move_uploaded_file($file['tmp_name'], $dest)) {
         throw new RuntimeException('Could not save the uploaded image.');
     }
     @chmod($dest, 0644);
+    return $urlBase . '/' . $name;
+}
 
-    return rtrim($config['upload_url'], '/') . '/' . $name;
+/**
+ * Downscale (max 1600px wide) and re-encode an image to WebP via GD.
+ * Returns true on success. Never throws — callers fall back to the original.
+ */
+function optimise_to_webp(string $srcPath, string $mime, string $destPath): bool
+{
+    try {
+        $img = match ($mime) {
+            'image/jpeg' => @imagecreatefromjpeg($srcPath),
+            'image/png'  => @imagecreatefrompng($srcPath),
+            'image/webp' => @imagecreatefromwebp($srcPath),
+            default      => false,
+        };
+        if (!$img) {
+            return false;
+        }
+        $w = imagesx($img);
+        $h = imagesy($img);
+        $max = 1600;
+        if ($w > $max) {
+            $nh = (int) round($h * $max / $w);
+            $resized = imagecreatetruecolor($max, $nh);
+            imagealphablending($resized, false);
+            imagesavealpha($resized, true);
+            imagecopyresampled($resized, $img, 0, 0, 0, 0, $max, $nh, $w, $h);
+            imagedestroy($img);
+            $img = $resized;
+        } else {
+            imagesavealpha($img, true);
+        }
+        $ok = imagewebp($img, $destPath, 82);
+        imagedestroy($img);
+        return $ok && is_file($destPath);
+    } catch (Throwable $e) {
+        error_log('[galilea] webp optimise failed: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/** Cache-busting URL for a local public asset (appends ?v=mtime). */
+function asset_url(string $path): string
+{
+    $full = APP_ROOT . '/public' . $path;
+    $v = is_file($full) ? substr((string) filemtime($full), -6) : '1';
+    return $path . '?v=' . $v;
 }
 
 /* ───────────────────────────  Activity log  ──────────────────────────── */

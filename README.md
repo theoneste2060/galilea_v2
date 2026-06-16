@@ -109,6 +109,21 @@ The `app/` and `data/` directories must **not** be web-accessible. Ensure
 All SEO/GEO values (canonical URL, share image, social handles, analytics ID,
 geo coordinates, legal name) are editable under **Site Settings**.
 
+## Performance
+- **Image optimisation on upload** — raster uploads are downscaled (max 1600px)
+  and re-encoded to **WebP** via GD (typically ~50% smaller); animated GIFs are
+  preserved as-is. Falls back to the original file if GD is unavailable.
+- **Cache-busting** — CSS/JS are served with a content-version query string so
+  browsers cache aggressively yet always pick up new builds instantly.
+- **Asset caching** — long-lived `Expires`/cache headers for static assets via
+  `public/.htaccess`; lazy-loaded images and deferred JS site-wide.
+
+> **Deployment note:** the admin rich-text editor (Summernote), jQuery and the
+> 2FA QR helper load from the cdnjs CDN. In locked-down/offline environments,
+> download those files into `public/assets/vendor/` and update the references in
+> `app/views/admin/layout_top.php` / `layout_bottom.php` / `account.php`, then
+> drop `cdnjs.cloudflare.com` from the CSP in `app/lib/helpers.php`.
+
 ## Security highlights
 - **SQL injection** — every query uses PDO prepared statements.
 - **XSS** — all output escaped via `esc()`; rich-text HTML passes through a
