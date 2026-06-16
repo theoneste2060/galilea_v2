@@ -1940,3 +1940,14 @@ html[data-theme="dark"] .field label{color:var(--muted-2)}
 .theme-toggle .ic-moon{display:none}
 html[data-theme="dark"] .theme-toggle .ic-sun{display:none}
 html[data-theme="dark"] .theme-toggle .ic-moon{display:block}
+
+/* Search typeahead */
+.search-suggest{margin-top:10px;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-lg);overflow:hidden;max-height:50vh;overflow-y:auto;display:none}
+.search-suggest.show{display:block}
+.sg-item{display:flex;align-items:center;gap:12px;padding:12px 16px;text-decoration:none;border-bottom:1px solid var(--line)}
+.sg-item:last-child{border-bottom:none}
+.sg-item.active,.sg-item:hover{background:var(--bg)}
+.sg-kind{flex-shrink:0;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-dark);background:rgba(201,168,76,.12);padding:3px 7px;border-radius:5px;min-width:58px;text-align:center}
+.sg-title{font-size:13.5px;color:var(--ink);font-weight:600;line-height:1.35}
+.sg-title mark{background:rgba(201,168,76,.34);color:inherit;border-radius:2px;padding:0 1px}
+.sg-empty{padding:14px 16px;font-size:12.5px;color:var(--muted)}

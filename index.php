@@ -238,6 +238,10 @@ if ($path === '/search') {
             $results[] = ['kind' => 'FAQ', 'title' => $r['question'], 'url' => '/#faq', 'excerpt' => mb_strimwidth($r['answer'], 0, 140, '…')];
         }
     }
+    // Lightweight JSON mode for the nav typeahead.
+    if (input('ajax') !== '') {
+        json_out(['ok' => true, 'q' => $q, 'results' => array_slice($results, 0, 7)]);
+    }
     require "$views/search_results.php";
     exit;
 }
