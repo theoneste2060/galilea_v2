@@ -120,8 +120,12 @@ function render_field(string $name, array $field, $value): string
                 $lines[] = ($st['label'] ?? '') . ' | ' . ($st['timestamp'] ?? '') . ' | ' . (!empty($st['completed']) ? '1' : '0');
             }
             $out .= "<label class=\"fl\">$label</label>";
-            $out .= '<textarea class="fta" name="' . esc($name) . '" rows="5" placeholder="One stage per line: Label | Timestamp | 1 or 0">' . esc(implode("\n", $lines)) . '</textarea>';
-            $out .= '<p class="fh">Format: <code>Label | Timestamp | completed(1/0)</code> — one stage per line.</p>';
+            // Visual builder (JS-enhanced). The textarea stays as the canonical
+            // value and is hidden when the editor mounts; it remains the
+            // graceful fallback when JavaScript is unavailable.
+            $out .= '<div class="stage-editor" data-stage-editor></div>';
+            $out .= '<textarea class="fta stage-source" name="' . esc($name) . '" rows="5" placeholder="One stage per line: Label | Timestamp | 1 or 0">' . esc(implode("\n", $lines)) . '</textarea>';
+            $out .= '<p class="fh">Add the milestones a customer sees when tracking. Mark a stage <strong>complete</strong> once it has happened.</p>';
             break;
 
         case 'slug':

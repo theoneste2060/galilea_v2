@@ -404,3 +404,19 @@ html[data-theme="dark"] code{background:#0f1830;color:#cbd4e3}
 .switch input:checked + .switch-slider::before{transform:translateX(20px)}
 .switch input:focus-visible + .switch-slider{box-shadow:0 0 0 3px rgba(201,168,76,.35)}
 html[data-theme="dark"] .switch-slider{background:#2a3550}
+
+/* Shipment stage builder */
+.stage-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.stage-row{display:flex;align-items:center;gap:8px;background:var(--bg-soft);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.stage-row.dragging{opacity:.5}
+.stage-row .st-grip{cursor:grab;color:var(--muted-2);font-size:13px;letter-spacing:-2px;user-select:none}
+.stage-row .st-label{flex:2;min-width:0}
+.stage-row .st-ts{flex:1.3;min-width:0}
+.stage-row .fi{margin:0;padding:8px 10px;font-size:12.5px}
+.st-done-wrap{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap;cursor:pointer}
+.st-done-wrap input{accent-color:var(--gold);width:15px;height:15px;cursor:pointer}
+.st-del{border:none;background:none;color:#c2410c;font-size:20px;line-height:1;cursor:pointer;padding:0 4px;border-radius:6px}
+.st-del:hover{background:rgba(239,68,68,.12)}
+.stage-add{align-self:flex-start}
+html[data-theme="dark"] .stage-row{background:#0f1830}
+@media(max-width:560px){.stage-row{flex-wrap:wrap}.stage-row .st-label,.stage-row .st-ts{flex:1 1 100%}}
