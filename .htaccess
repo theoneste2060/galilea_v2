@@ -1,8 +1,30 @@
-# Route all requests into the public/ web root
-RewriteEngine On
-RewriteRule ^$ public/ [L]
-RewriteCond %{REQUEST_URI} !^/public/
-RewriteRule ^(.*)$ public/$1 [L]
+DirectoryIndex index.php
 
-# Never serve application internals or the database
-RedirectMatch 404 ^/(app|data)(/|$)
+# Clean-URL routing: send anything that isn't a real file/dir to the front controller
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Cache static assets aggressively (they are versioned by content)
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/webp "access plus 30 days"
+</IfModule>
+
+# Block access to hidden files
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
