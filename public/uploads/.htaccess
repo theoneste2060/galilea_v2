@@ -1,0 +1,10 @@
+# Uploaded files are data, never code. Disable any script execution.
+php_flag engine off
+<IfModule mod_php.c>
+  php_admin_flag engine off
+</IfModule>
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phps .cgi .pl .py
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .phps
+<FilesMatch "\.(php|phtml|php[0-9]|phps|cgi|pl|py|asp|aspx|sh)$">
+  Require all denied
+</FilesMatch>

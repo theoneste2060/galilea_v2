@@ -1,0 +1,8 @@
+# Route all requests into the public/ web root
+RewriteEngine On
+RewriteRule ^$ public/ [L]
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Never serve application internals or the database
+RedirectMatch 404 ^/(app|data)(/|$)
