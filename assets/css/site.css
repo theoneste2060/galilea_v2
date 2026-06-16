@@ -1976,3 +1976,42 @@ html[data-theme="dark"] .theme-toggle .ic-moon{display:block}
 /* JS active: only the current step shows. Without JS every step is visible. */
 .quote-wizard.wizard-on .wiz-step[hidden]{display:none}
 @media(max-width:560px){.wiz-ind{font-size:0}.wiz-ind .wiz-num{font-size:12px}.wiz-ind.done .wiz-num::after{font-size:13px}}
+
+/* ═══════════════ Responsive & card-fit refinements (v3.2) ═══════════════ */
+/* Generic equal-width grids used on the service/insight detail pages.
+   (.g3 was previously undefined, so related cards stacked full-width.) */
+.g2,.g3,.g4{display:grid;gap:20px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:980px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+/* Make related mini-cards a consistent height with the text pinned correctly. */
+.related-block .g3 .mini-card{display:flex;flex-direction:column}
+.mini-card img{aspect-ratio:16/10;height:auto}
+.mini-body{flex:1}
+.mini-body p{color:var(--muted)}
+
+/* Services grid: tokenize the hairline divider + icon chip so dark mode is clean. */
+.services-grid{background:var(--line);border-color:var(--line)}
+.sc-icon-wrap{background:var(--bg-soft)}
+html[data-theme="dark"] .sc-icon-wrap{background:#0f1830}
+html[data-theme="dark"] .sc-icon-wrap svg{color:var(--gold)}
+
+/* Tablet: 2-up services read better than a cramped 3-up below ~1024px.
+   Bounded to >768px so the existing phone rule (1-up) still wins below it. */
+@media(min-width:769px) and (max-width:1024px){.services-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* Phone polish: tighter gutters, scaled headings, comfortable card padding. */
+@media(max-width:560px){
+  .container{padding:0 16px}
+  .page-hero-title{font-size:30px;line-height:1.15}
+  .page-hero-sub{font-size:14.5px}
+  .service-card{padding:26px 22px}
+  .detail-side{margin-top:8px}
+  .related-block{margin-top:36px;padding-top:28px}
+  .cta-band{flex-direction:column;text-align:center;gap:16px}
+}
+/* Guard against any element forcing horizontal scroll on small screens. */
+@media(max-width:560px){html,body{overflow-x:hidden}img{max-width:100%}}
