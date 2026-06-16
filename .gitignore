@@ -1,0 +1,17 @@
+# SQLite database (created at runtime; never commit data)
+/data/*.sqlite
+/data/*.sqlite-wal
+/data/*.sqlite-shm
+
+# User uploads (runtime content)
+/public/uploads/*
+!/public/uploads/.gitkeep
+!/public/uploads/.htaccess
+
+# Reference material / scratch (kept out of the deliverable)
+/Desktop/
+/Agriverse_may/
+
+# OS / editor noise
+.DS_Store
+*.log
