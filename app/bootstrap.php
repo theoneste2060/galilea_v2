@@ -17,6 +17,7 @@ $config = require __DIR__ . '/config.php';
 
 require __DIR__ . '/lib/helpers.php';
 require __DIR__ . '/lib/Database.php';
+require __DIR__ . '/lib/site.php';
 
 Database::init($config);
 

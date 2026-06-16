@@ -66,6 +66,17 @@ function render_field(string $name, array $field, $value): string
             $out .= '<label class="fl-check"><input type="checkbox" name="' . esc($name) . '" value="1"' . $checked . '> ' . $label . '</label>';
             break;
 
+        case 'parent':
+            $out .= "<label class=\"fl\">$label</label><select class=\"fsel\" name=\"" . esc($name) . '">';
+            $out .= '<option value="">— Top-level (mega-menu heading) —</option>';
+            $tops = Database::all('SELECT id, title FROM menu_items WHERE parent_id IS NULL ORDER BY sort_order, title');
+            foreach ($tops as $t) {
+                $sel = ((string) $val === (string) $t['id']) ? ' selected' : '';
+                $out .= '<option value="' . (int) $t['id'] . '"' . $sel . '>' . esc($t['title']) . '</option>';
+            }
+            $out .= '</select>';
+            break;
+
         case 'select':
             $out .= "<label class=\"fl\">$label$req</label><select class=\"fsel\" name=\"" . esc($name) . '">';
             foreach (($field['options'] ?? []) as $opt) {
@@ -155,6 +166,12 @@ function save_resource(array $res, ?int $id): int
 
         if ($type === 'stages') {
             $cols[$name] = json_encode(parse_stages((string) ($_POST[$name] ?? '')));
+            continue;
+        }
+
+        if ($type === 'parent') {
+            $pv = trim((string) ($_POST[$name] ?? ''));
+            $cols[$name] = $pv === '' ? null : (int) $pv;
             continue;
         }
 

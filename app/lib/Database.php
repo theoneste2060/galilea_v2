@@ -175,6 +175,30 @@ final class Database
             created_at TEXT NOT NULL DEFAULT (datetime('now'))
         );
 
+        CREATE TABLE IF NOT EXISTS menu_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            parent_id INTEGER,
+            title TEXT NOT NULL,
+            subtitle TEXT NOT NULL DEFAULT '',
+            url TEXT NOT NULL DEFAULT '#',
+            icon TEXT NOT NULL DEFAULT '',
+            is_mega INTEGER NOT NULL DEFAULT 0,
+            column_group INTEGER NOT NULL DEFAULT 1,
+            sort_order INTEGER NOT NULL DEFAULT 0,
+            is_active INTEGER NOT NULL DEFAULT 1
+        );
+
+        CREATE TABLE IF NOT EXISTS pages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            slug TEXT NOT NULL UNIQUE,
+            body TEXT NOT NULL DEFAULT '',
+            meta_description TEXT NOT NULL DEFAULT '',
+            is_active INTEGER NOT NULL DEFAULT 1,
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
         CREATE TABLE IF NOT EXISTS shipments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             reference_number TEXT NOT NULL UNIQUE,
@@ -328,6 +352,68 @@ final class Database
                 'INSERT INTO shipments (reference_number, customer_name, origin, destination, current_stage, status, stages) VALUES (?,?,?,?,?,?,?)',
                 ['GALU1234567', 'Savanna Trade Supplies', 'Nairobi, Kenya', 'Shanghai, China', 'In transit to Shanghai', 'In Transit', $stages]
             );
+        }
+
+        if ((int) self::value('SELECT COUNT(*) FROM pages') === 0) {
+            $pages = [
+                ['About Galilea', 'about', '<p>Galilea Global Logistics Ltd. is a Kigali-headquartered freight forwarder connecting East Africa and China through sea, air and land freight, customs clearance, warehousing and supplier sourcing.</p><p>With offices in Kigali, Guangzhou and Yiwu, we deliver end-to-end supply chain solutions with full transparency and real-time tracking.</p>', 'Learn about Galilea Global Logistics — your trusted freight and supply-chain partner across East Africa and China.'],
+                ['Careers', 'careers', '<p>Join a fast-growing logistics team operating across Rwanda and China. We are always looking for talented operations, sales and customs specialists.</p><p>Send your CV to <a href="mailto:info@galileagloballogistics.rw">info@galileagloballogistics.rw</a>.</p>', 'Careers at Galilea Global Logistics.'],
+                ['Privacy Policy', 'privacy', '<p>We respect your privacy. This policy explains what data we collect through inquiries and newsletter subscriptions, how it is used, and your rights.</p>', 'Galilea Global Logistics privacy policy.'],
+                ['Terms of Service', 'terms', '<p>These terms govern your use of the Galilea Global Logistics website and services.</p>', 'Galilea Global Logistics terms of service.'],
+                ['Cookie Policy', 'cookies', '<p>We use a minimal set of cookies required for security (session and CSRF) and, with your consent, analytics.</p>', 'Galilea Global Logistics cookie policy.'],
+            ];
+            $stmt = $pdo->prepare('INSERT INTO pages (title, slug, body, meta_description) VALUES (?,?,?,?)');
+            foreach ($pages as $pg) {
+                $stmt->execute($pg);
+            }
+        }
+
+        if ((int) self::value('SELECT COUNT(*) FROM menu_items') === 0) {
+            // Top-level mega-menu parents.
+            $parents = [
+                ['Services', '/services', 1, 1],
+                ['Solutions', '/services', 1, 2],
+                ['Industries', '/services', 1, 3],
+                ['Company', '/about', 1, 4],
+            ];
+            $pstmt = $pdo->prepare('INSERT INTO menu_items (title, url, is_mega, sort_order) VALUES (?,?,?,?)');
+            $ids = [];
+            foreach ($parents as $pr) { $pstmt->execute($pr); $ids[$pr[0]] = (int) $pdo->lastInsertId(); }
+
+            $ship = '<path d="M3 17l9 4 9-4V7L12 3 3 7v10z"/><path d="M12 3v18M3 7l9 4 9-4"/>';
+            $plane = '<path d="M17.8 19.2L16 11l3.5-3.5C21 6 21 4 20 3c-1-1-3-1-4.5.5L12 7 3.8 5.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>';
+            $truck = '<rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>';
+            $box = '<path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>';
+            $globe = '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/>';
+            $check = '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>';
+
+            $children = [
+                // Services
+                [$ids['Services'], 'Sea Cargo & Ocean Freight', 'FCL & LCL worldwide', '/services/sea-cargo-ocean-freight', $ship, 1, 1],
+                [$ids['Services'], 'Air Freight', 'Time-critical cargo', '/services/air-freight', $plane, 1, 2],
+                [$ids['Services'], 'Road & Land Transport', 'Inland & last-mile', '/services/road-land-transport', $truck, 1, 3],
+                [$ids['Services'], 'Warehousing & Distribution', 'Strategic hubs', '/services/warehousing-distribution', $box, 2, 4],
+                [$ids['Services'], 'Customs Clearance', 'Smooth border crossings', '/services/customs-clearance', $check, 2, 5],
+                [$ids['Services'], 'China Business Connection', 'Sourcing & transfers', '/services/china-business-connection', $globe, 2, 6],
+                // Solutions
+                [$ids['Solutions'], 'E-commerce Fulfilment', 'Pick, pack & dispatch', '/services', $box, 1, 1],
+                [$ids['Solutions'], 'Project Cargo', 'Oversized & specialist loads', '/services', $ship, 1, 2],
+                [$ids['Solutions'], 'Supply Chain Management', 'End-to-end optimisation', '/services', $globe, 2, 3],
+                [$ids['Solutions'], 'Track & Trace', 'Live shipment tracking', '/track', $check, 2, 4],
+                // Industries
+                [$ids['Industries'], 'Pharmaceuticals', 'Compliant cold-chain', '/services', $check, 1, 1],
+                [$ids['Industries'], 'Fresh Produce & Perishables', 'Time-sensitive air freight', '/services', $plane, 1, 2],
+                [$ids['Industries'], 'Machinery & Equipment', 'Heavy & oversized', '/services', $truck, 2, 3],
+                [$ids['Industries'], 'Retail & E-commerce', 'Scalable fulfilment', '/services', $box, 2, 4],
+                // Company
+                [$ids['Company'], 'About Galilea', 'Who we are', '/about', $globe, 1, 1],
+                [$ids['Company'], 'Our Team', 'Leadership', '/#team', '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/>', 1, 2],
+                [$ids['Company'], 'Insights & News', 'Latest updates', '/insights', '<path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2z"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/>', 2, 3],
+                [$ids['Company'], 'Careers', 'Join the team', '/careers', '<path d="M20 7h-4V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H4a2 2 0 00-2 2v11a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>', 2, 4],
+                [$ids['Company'], 'Contact', 'Get in touch', '/contact', '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>', 2, 5],
+            ];
+            $cstmt = $pdo->prepare('INSERT INTO menu_items (parent_id, title, subtitle, url, icon, column_group, sort_order) VALUES (?,?,?,?,?,?,?)');
+            foreach ($children as $c) { $cstmt->execute($c); }
         }
     }
 }

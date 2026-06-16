@@ -70,6 +70,8 @@ $rows = Database::all("SELECT * FROM $table ORDER BY " . $res['order']);
           <td>
           <?php if (in_array($col, ['is_active', 'featured', 'published'], true)): ?>
             <?php if ($v): ?><span class="bdg bdg-ok"><span class="dot5" style="background:#4ade80"></span>Yes</span><?php else: ?><span class="bdg bdg-off">No</span><?php endif; ?>
+          <?php elseif ($col === 'parent_id'): ?>
+            <?php if ($v): ?><span class="bdg bdg-vw">sub-item</span><?php else: ?><span class="bdg bdg-adm">top-level</span><?php endif; ?>
           <?php elseif ($col === 'status'): ?>
             <span class="bdg bdg-ed"><?= esc($v) ?></span>
           <?php elseif ($col === 'rating'): ?>

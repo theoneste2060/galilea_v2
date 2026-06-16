@@ -118,4 +118,40 @@ return [
             'stages'           => ['type' => 'stages', 'label' => 'Tracking stages'],
         ],
     ],
+
+    'pages' => [
+        'table' => 'pages',
+        'label' => 'Static Pages',
+        'singular' => 'Page',
+        'icon' => '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/>',
+        'order' => 'title',
+        'list_columns' => ['title' => 'Title', 'slug' => 'URL', 'is_active' => 'Active'],
+        'fields' => [
+            'title'            => ['type' => 'text', 'label' => 'Title', 'required' => true],
+            'slug'             => ['type' => 'slug', 'label' => 'Slug (URL key, e.g. about)', 'source' => 'title'],
+            'meta_description' => ['type' => 'textarea', 'label' => 'Meta description (SEO)'],
+            'body'             => ['type' => 'richtext', 'label' => 'Page content'],
+            'is_active'        => ['type' => 'checkbox', 'label' => 'Active (visible)', 'default' => 1],
+        ],
+    ],
+
+    'menu' => [
+        'table' => 'menu_items',
+        'label' => 'Navigation Menu',
+        'singular' => 'Menu Item',
+        'icon' => '<line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>',
+        'order' => 'parent_id IS NULL DESC, parent_id, sort_order',
+        'list_columns' => ['title' => 'Label', 'url' => 'Link', 'parent_id' => 'Parent', 'sort_order' => 'Order', 'is_active' => 'Active'],
+        'fields' => [
+            'title'        => ['type' => 'text', 'label' => 'Label', 'required' => true],
+            'parent_id'    => ['type' => 'parent', 'label' => 'Parent (leave as top-level for a mega-menu heading)'],
+            'subtitle'     => ['type' => 'text', 'label' => 'Subtitle (small text under a dropdown link)'],
+            'url'          => ['type' => 'text', 'label' => 'Link URL (e.g. /services/air-freight)', 'default' => '#'],
+            'icon'         => ['type' => 'textarea', 'label' => 'Icon SVG inner paths (optional)'],
+            'is_mega'      => ['type' => 'checkbox', 'label' => 'Show children as a mega-menu (top-level only)'],
+            'column_group' => ['type' => 'number', 'label' => 'Mega column (1, 2 or 3)', 'default' => 1, 'min' => 1, 'max' => 3],
+            'sort_order'   => ['type' => 'number', 'label' => 'Sort order'],
+            'is_active'    => ['type' => 'checkbox', 'label' => 'Active', 'default' => 1],
+        ],
+    ],
 ];

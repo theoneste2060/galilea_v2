@@ -1,0 +1,149 @@
+<?php
+/**
+ * Shared <head> + opening chrome for every public page.
+ * Expects $meta = ['title' => ..., 'description' => ..., 'path' => ...].
+ */
+$meta = $meta ?? [];
+$pageTitle = $meta['title'] ?? setting('seo_title', 'Galilea Global Logistics');
+$pageDesc  = $meta['description'] ?? setting('seo_description', '');
+$st = site_settings();
+$g = fn(string $k, string $d = '') => esc($st[$k] ?? $d);
+$menu = nav_menu();
+$here = current_path();
+?><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><?= esc($pageTitle) ?></title>
+<meta name="description" content="<?= esc($pageDesc) ?>">
+<link rel="icon" href="/assets/img/logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to content</a>
+
+<!-- Cookie consent -->
+<div class="cookie-bar" id="cookieBar" role="dialog" aria-label="Cookie notice" hidden>
+  <p>We use essential cookies for security, and optional analytics cookies to improve your experience. See our <a href="/cookies">Cookie Policy</a>.</p>
+  <div class="cookie-actions">
+    <button class="cookie-btn ghost" id="cookieDecline">Decline</button>
+    <button class="cookie-btn primary" id="cookieAccept">Accept</button>
+  </div>
+</div>
+
+<!-- ── TOP UTILITY BAR ── -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-left">
+      <a href="mailto:<?= $g('site_email') ?>" class="top-bar-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 6 10-6"/></svg>
+        <?= $g('site_email') ?>
+      </a>
+      <div class="divider"></div>
+      <a href="<?= esc(tel_href($st['phone_rw'] ?? '')) ?>" class="tb-btn tb-btn-phone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.56-.56a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        <?= $g('phone_rw') ?>
+      </a>
+      <a href="<?= esc(tel_href($st['phone_cn'] ?? '')) ?>" class="tb-btn tb-btn-phone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.56-.56a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        <?= $g('phone_cn') ?>
+      </a>
+    </div>
+    <div class="top-bar-right">
+      <span class="tb-btn tb-btn-location">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <?= $g('address_kigali', 'Nyarugenge, Kigali') ?> 🇷🇼
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ── NAVIGATION + MEGA MENU ── -->
+<nav id="mainNav" aria-label="Primary">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo" aria-label="Galilea Global Logistics — home">
+        <img src="/assets/img/logo.jpeg" class="logo-mark" alt="" width="46" height="46" style="width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+        <div><span class="logo-text">Galilea Global</span><span class="logo-sub">Logistics Ltd.</span></div>
+      </a>
+
+      <ul class="nav-links" role="menubar">
+        <?php foreach ($menu as $top): $hasKids = !empty($top['children']); $cols = []; ?>
+          <?php if ($hasKids): foreach ($top['children'] as $c) { $cols[(int) $c['column_group']][] = $c; } ?>
+          <li class="nav-item has-mega" role="none">
+            <button class="nav-link-btn" role="menuitem" aria-haspopup="true" aria-expanded="false">
+              <?= esc($top['title']) ?>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="mega-panel" role="menu" aria-label="<?= esc($top['title']) ?>">
+              <div class="mega-cols">
+                <?php foreach ($cols as $colItems): ?>
+                <div class="mega-col">
+                  <?php foreach ($colItems as $c): ?>
+                  <a href="<?= esc($c['url']) ?>" class="mega-link" role="menuitem">
+                    <?php if (!empty($c['icon'])): ?><span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><?= $c['icon'] ?></svg></span><?php endif; ?>
+                    <span class="mega-txt"><?= esc($c['title']) ?><?php if (!empty($c['subtitle'])): ?><small><?= esc($c['subtitle']) ?></small><?php endif; ?></span>
+                  </a>
+                  <?php endforeach; ?>
+                </div>
+                <?php endforeach; ?>
+                <div class="mega-promo">
+                  <span class="mega-promo-eyebrow">Track &amp; Trace</span>
+                  <p class="mega-promo-title">Follow your shipment live</p>
+                  <a href="/track" class="mega-promo-btn">Track now
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </li>
+          <?php else: ?>
+          <li class="nav-item" role="none"><a href="<?= esc($top['url']) ?>" class="nav-link-btn" role="menuitem"><?= esc($top['title']) ?></a></li>
+          <?php endif; ?>
+        <?php endforeach; ?>
+        <li class="nav-item" role="none"><a href="/track" class="nav-link-btn" role="menuitem">Track &amp; Trace</a></li>
+      </ul>
+
+      <div class="nav-right">
+        <a href="/admin.php" class="nav-btn-ghost">Sign In</a>
+        <a href="/contact" class="nav-btn-primary">Get a Quote</a>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.88)" stroke-width="2.5" aria-hidden="true"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ── MOBILE NAV (accordion mega) ── -->
+<div class="mobile-nav" id="mobileNav" aria-hidden="true">
+  <div class="mn-header">
+    <span class="mn-logo">Galilea Global Logistics</span>
+    <button class="mn-close" id="mnClose" aria-label="Close menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="mn-body">
+    <?php foreach ($menu as $top): ?>
+      <?php if (!empty($top['children'])): ?>
+      <div class="mn-group">
+        <button class="mn-acc" aria-expanded="false"><?= esc($top['title']) ?><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="mn-sub">
+          <?php foreach ($top['children'] as $c): ?><a href="<?= esc($c['url']) ?>" class="mn-link sub"><?= esc($c['title']) ?></a><?php endforeach; ?>
+        </div>
+      </div>
+      <?php else: ?>
+      <a href="<?= esc($top['url']) ?>" class="mn-link"><?= esc($top['title']) ?></a>
+      <?php endif; ?>
+    <?php endforeach; ?>
+    <a href="/track" class="mn-link">Track &amp; Trace</a>
+  </div>
+  <div class="mn-actions">
+    <a href="/admin.php" class="mn-act-ghost">Sign In</a>
+    <a href="/contact" class="mn-act-primary">Get a Quote</a>
+  </div>
+</div>
+
+<main id="main">

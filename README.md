@@ -11,11 +11,18 @@ content-management portal.
 ## Features
 
 ### Public website (`/`)
-- Hero slider, services grid, live shipment **Track & Trace**, stats, industry
-  solutions, news/insights, leadership team, testimonials slider, quote-request
-  form, and newsletter signup — all driven from the database.
-- Loads fast: lightweight preloader, lazy-loaded images, deferred JS, font
-  preconnect, and short-lived browser caching.
+- **DB-driven mega-menu** with multi-column dropdowns, icons, descriptions and a
+  promo cell — fully accessible (keyboard, `aria-expanded`, ESC/outside-click to
+  close) with a mobile accordion version.
+- **Clean URL routing** with real pages: services listing + detail, insights
+  listing (paginated) + article, contact/quote, track, and CMS pages
+  (about/careers/privacy/terms/cookies), plus a branded 404.
+- Hero slider, services grid, live shipment **Track & Trace**, stats, news,
+  leadership team, testimonials slider, quote form, newsletter — all from the DB.
+- **UX & accessibility:** skip-to-content link, visible focus styles, ARIA on
+  menus/sliders/forms, breadcrumbs, inline form validation, loading states,
+  `prefers-reduced-motion` support, and a cookie-consent banner.
+- Loads fast: lazy-loaded images, deferred JS, font preconnect, browser caching.
 - Tracking, quote requests, and newsletter signups are submitted over AJAX to
   JSON endpoints with CSRF protection and anti-spam honeypots.
 
@@ -24,7 +31,8 @@ content-management portal.
   **login rate limiting**.
 - Dashboard with live content/engagement counts and an audit trail.
 - Full CRUD for **Hero Slides, Services, News & Insights, Testimonials, Team
-  Members, and Shipments**.
+  Members, Shipments, Static Pages, and the Navigation Menu** (build the
+  mega-menu: top-level headings + child links with icons, columns and order).
 - **Inquiries** inbox (with status workflow) and **Newsletter Subscribers**.
 - **Site Settings** (contacts, stats, SEO), **Admin Users** (super-admin only),
   and **Activity Logs**.
@@ -42,12 +50,18 @@ content-management portal.
 
 ## Running locally
 ```bash
-# from the project root
-php -S 127.0.0.1:8000 -t public
+# from the project root — the router enables clean URLs on the built-in server
+php -S 127.0.0.1:8000 -t public public/router.php
 ```
 Then open <http://127.0.0.1:8000/>. The database and schema are created
 automatically on first request (`data/galilea.sqlite`) and seeded with demo
-content.
+content. (Under Apache the root/`public` `.htaccess` handles routing; the
+`router.php` shim is only needed for PHP's built-in dev server.)
+
+### Public routes
+`/` · `/services` · `/services/{slug}` · `/insights` · `/insights/{slug}` ·
+`/track` · `/contact` · `/about` · `/careers` · `/privacy` · `/terms` ·
+`/cookies` (and any active page slug) — unknown URLs render a branded 404.
 
 ## Deploying (Apache / shared hosting)
 - Point the document root at the `public/` directory **(recommended)**, or
