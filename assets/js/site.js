@@ -71,10 +71,31 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAllMega(null); });
   document.addEventListener('click', function (e) { if (!e.target.closest('.nav-item.has-mega')) closeAllMega(null); });
 
+  // Reusable keyboard focus-trap for open overlays/menus.
+  function focusTrap(container) {
+    function items() {
+      return Array.prototype.slice.call(container.querySelectorAll(
+        'a[href],button:not([disabled]),input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])'
+      )).filter(function (el) { return el.offsetParent !== null; });
+    }
+    function onKey(e) {
+      if (e.key !== 'Tab') return;
+      var f = items(); if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+    return {
+      on: function () { container.addEventListener('keydown', onKey); },
+      off: function () { container.removeEventListener('keydown', onKey); }
+    };
+  }
+
   // ── MOBILE NAV + ACCORDION ──
   var hamburger = $('#hamburgerBtn'), mobileNav = $('#mobileNav'), mnClose = $('#mnClose');
-  function openMobile() { mobileNav.classList.add('open'); mobileNav.setAttribute('aria-hidden', 'false'); hamburger.setAttribute('aria-expanded', 'true'); document.body.style.overflow = 'hidden'; }
-  function closeMobile() { mobileNav.classList.remove('open'); mobileNav.setAttribute('aria-hidden', 'true'); hamburger.setAttribute('aria-expanded', 'false'); document.body.style.overflow = ''; }
+  var mnTrap = mobileNav ? focusTrap(mobileNav) : null, mnReturn = null;
+  function openMobile() { mnReturn = document.activeElement; mobileNav.classList.add('open'); mobileNav.setAttribute('aria-hidden', 'false'); hamburger.setAttribute('aria-expanded', 'true'); document.body.style.overflow = 'hidden'; if (mnTrap) mnTrap.on(); if (mnClose) setTimeout(function () { mnClose.focus(); }, 40); }
+  function closeMobile() { mobileNav.classList.remove('open'); mobileNav.setAttribute('aria-hidden', 'true'); hamburger.setAttribute('aria-expanded', 'false'); document.body.style.overflow = ''; if (mnTrap) mnTrap.off(); if (mnReturn && mnReturn.focus) mnReturn.focus(); }
   if (hamburger && mobileNav) {
     hamburger.addEventListener('click', openMobile);
     if (mnClose) mnClose.addEventListener('click', closeMobile);
@@ -304,8 +325,9 @@
   (function () {
     var toggle = $('#searchToggle'), overlay = $('#searchOverlay'), input = $('#searchInput');
     if (!toggle || !overlay) return;
-    function open() { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; setTimeout(function () { if (input) input.focus(); }, 60); }
-    function close() { overlay.classList.remove('open'); document.body.style.overflow = ''; clear(); }
+    var soTrap = focusTrap(overlay), soReturn = null;
+    function open() { soReturn = document.activeElement; overlay.classList.add('open'); document.body.style.overflow = 'hidden'; soTrap.on(); setTimeout(function () { if (input) input.focus(); }, 60); }
+    function close() { overlay.classList.remove('open'); document.body.style.overflow = ''; clear(); soTrap.off(); if (soReturn && soReturn.focus) soReturn.focus(); }
     toggle.addEventListener('click', open);
     overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
 
