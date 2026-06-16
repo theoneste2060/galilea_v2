@@ -18,7 +18,10 @@ content-management portal.
   listing (paginated, **filterable by category**) + article, contact/quote,
   track, and CMS pages (about/careers/privacy/terms/cookies), plus a branded 404.
 - Hero slider, services grid, live shipment **Track & Trace**, stats, news,
-  leadership team, testimonials slider, quote form, newsletter — all from the DB.
+  leadership team, testimonials slider, newsletter — all from the DB.
+- **Multi-step quote wizard** on the contact page (service & route → details →
+  contact), with per-step validation and a no-JS fallback that degrades to a
+  single form.
 - **UX & accessibility:** skip-to-content link, visible focus styles, ARIA on
   menus/sliders/forms, breadcrumbs, **accessible floating-label forms**,
   **global toasts**, **skeleton loaders**, `prefers-reduced-motion`, and a

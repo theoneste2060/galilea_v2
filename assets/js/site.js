@@ -227,6 +227,65 @@
         .finally(function () { if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label; } });
     });
   }
+  // ── QUOTE WIZARD (progressive enhancement of the contact form) ──
+  (function () {
+    var form = $('.quote-wizard');
+    if (!form) return;
+    var steps = Array.prototype.slice.call(form.querySelectorAll('.wiz-step'));
+    var inds = Array.prototype.slice.call(form.querySelectorAll('.wiz-ind'));
+    var back = form.querySelector('.wiz-back'), next = form.querySelector('.wiz-next'), submit = form.querySelector('.wiz-submit');
+    if (steps.length < 2) return;
+    form.classList.add('wizard-on');
+    var cur = 0;
+
+    function show(i) {
+      cur = i;
+      steps.forEach(function (s, n) { s.hidden = n !== i; });
+      inds.forEach(function (el, n) { el.classList.toggle('active', n === i); el.classList.toggle('done', n < i); });
+      back.hidden = i === 0;
+      next.hidden = i === steps.length - 1;
+      submit.hidden = i !== steps.length - 1;
+      var f = steps[i].querySelector('input,select,textarea');
+      if (f) setTimeout(function () { f.focus(); }, 40);
+    }
+    function validStep(i) {
+      var ok = true;
+      steps[i].querySelectorAll('[required]').forEach(function (f) {
+        var good = f.checkValidity() && f.value.trim() !== '';
+        f.classList.toggle('field-invalid', !good);
+        if (!good && ok) { f.focus(); ok = false; }
+      });
+      return ok;
+    }
+    next.addEventListener('click', function () { if (validStep(cur)) show(cur + 1); });
+    back.addEventListener('click', function () { show(cur - 1); });
+    // Clear the invalid state as the user fixes a field.
+    form.addEventListener('input', function (e) { if (e.target.classList) e.target.classList.remove('field-invalid'); });
+
+    // Fold the route/cargo details into the message before the AJAX submit runs.
+    form.addEventListener('submit', function (e) {
+      if (!validStep(cur)) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+      var msg = form.querySelector('#c_msg');
+      if (!msg || msg.dataset.composed) return;
+      var get = function (id) { var el = form.querySelector(id); return el ? el.value.trim() : ''; };
+      var lines = [];
+      var route = [get('#c_origin'), get('#c_dest')].filter(Boolean).join(' → ');
+      if (route) lines.push('Route: ' + route);
+      if (get('#c_cargo')) lines.push('Cargo: ' + get('#c_cargo'));
+      if (get('#c_weight')) lines.push('Weight/volume: ' + get('#c_weight'));
+      if (lines.length) { msg.value = lines.join('\n') + '\n\n' + msg.value; msg.dataset.composed = '1'; }
+    }, true); // capture: run before ajaxForm's handler
+
+    // After a successful send ajaxForm resets the form — return to step 1.
+    form.addEventListener('reset', function () {
+      var msg = form.querySelector('#c_msg');
+      if (msg) delete msg.dataset.composed;
+      setTimeout(function () { show(0); }, 0);
+    });
+
+    show(0);
+  })();
+
   ajaxForm('inquiryForm', 'inquiryMsg', 'inquiry');
   ajaxForm('newsletterForm', 'newsletterMsg', 'newsletter');
 
