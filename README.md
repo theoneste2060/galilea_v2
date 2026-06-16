@@ -82,11 +82,19 @@ clean-URL routing and **denies direct access to `app/` and `data/`** (which now
 live inside the web root). Belt-and-suspenders `.htaccess` files in `app/` and
 `data/` deny access on their own as well.
 
-> **Note:** the `app/` and `data/` directories must never be web-accessible. On
-> Apache the bundled rules handle this. On **nginx** (or any server that ignores
-> `.htaccess`), add an equivalent `location` deny for `^/(app|data)/` and for
-> dotfiles, and disable PHP execution under `/uploads/`. Ensure `data/` and
-> `uploads/` are writable by the web server.
+### nginx
+A ready-to-use server block ships at **[`deploy/nginx.conf`](deploy/nginx.conf)**
+(see [`deploy/README.md`](deploy/README.md) for the install steps). Edit
+`server_name`, `root`, and the `fastcgi_pass` PHP-FPM socket, then symlink it
+into `sites-enabled` and reload. It enforces the same protections as Apache:
+clean-URL routing to `index.php`, 403 on `app/`/`data/`/`deploy/` and dotfiles,
+no PHP execution under `/uploads/`, asset caching, and baseline security
+headers. For TLS, run `certbot --nginx`.
+
+> **Note:** the `app/` and `data/` directories must never be web-accessible.
+> The bundled Apache (`.htaccess`) and nginx (`deploy/nginx.conf`) rules handle
+> this; the dev `router.php` does too. Ensure `data/` and `uploads/` are
+> writable by the web-server user.
 
 ## First login
 | | |
