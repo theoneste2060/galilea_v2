@@ -129,6 +129,26 @@ if ($action && is_post()) {
                 flash($res['singular'] . ' deleted.');
                 redirect('/admin.php?p=' . $key);
             }
+            if ($action === 'bulk_delete') {
+                $ids = array_map('intval', (array) ($_POST['ids'] ?? []));
+                $ids = array_filter($ids);
+                if ($ids) {
+                    $in = implode(',', array_fill(0, count($ids), '?'));
+                    Database::run("DELETE FROM {$res['table']} WHERE id IN ($in)", array_values($ids));
+                    log_activity('bulk_delete', $res['singular'] . ' × ' . count($ids));
+                    flash(count($ids) . ' ' . strtolower($res['singular']) . '(s) deleted.');
+                }
+                redirect('/admin.php?p=' . $key);
+            }
+            if ($action === 'reorder' && isset($res['fields']['sort_order'])) {
+                $ids = array_map('intval', (array) ($_POST['order'] ?? []));
+                $pos = 0;
+                foreach ($ids as $rid) {
+                    Database::run("UPDATE {$res['table']} SET sort_order = ? WHERE id = ?", [$pos++, $rid]);
+                }
+                log_activity('reorder', $res['label']);
+                json_out(['ok' => true]);
+            }
         } catch (RuntimeException $e) {
             flash($e->getMessage(), 'error');
             redirect('/admin.php?p=' . $key . ($id ? '&edit=' . $id : '&new=1'));
@@ -164,6 +184,33 @@ if ($action && is_post()) {
         Database::run('DELETE FROM newsletter_subscribers WHERE id = ?', [(int) input('id')]);
         flash('Subscriber removed.');
         redirect('/admin.php?p=subscribers');
+    }
+
+    /* ── Media library ── */
+    if ($action === 'media_upload') {
+        require_access('media');
+        try {
+            $url = handle_image_upload('file', $config);
+            flash($url ? 'Image uploaded.' : 'No file selected.', $url ? 'success' : 'error');
+        } catch (RuntimeException $e) {
+            flash($e->getMessage(), 'error');
+        }
+        redirect('/admin.php?p=media');
+    }
+    if ($action === 'media_delete') {
+        require_access('media');
+        $name = basename((string) input('file')); // strip any path traversal
+        if (preg_match('/^[A-Za-z0-9._-]+\.(jpg|jpeg|png|webp|gif)$/i', $name)) {
+            $path = $config['upload_dir'] . '/' . $name;
+            if (is_file($path)) {
+                @unlink($path);
+                log_activity('media_delete', $name);
+                flash('Image deleted.');
+            }
+        } else {
+            flash('Invalid file name.', 'error');
+        }
+        redirect('/admin.php?p=media');
     }
 
     /* ── My Account: password + 2FA ── */
@@ -313,7 +360,7 @@ $resources = admin_resources();
 $superadminOnly = ['settings', 'users', 'backup'];
 if (in_array($p, $superadminOnly, true)) {
     require_role('superadmin');
-} elseif (isset($resources[$p]) || in_array($p, ['inquiries', 'subscribers', 'activity'], true)) {
+} elseif (isset($resources[$p]) || in_array($p, ['inquiries', 'subscribers', 'activity', 'media'], true)) {
     require_access($p);
 }
 
@@ -331,6 +378,7 @@ if (isset($resources[$p])) {
         'activity'    => 'activity.php',
         'account'     => 'account.php',
         'backup'      => 'backup.php',
+        'media'       => 'media.php',
     ];
     $view = $viewMap[$p] ?? 'dashboard.php';
     require dirname(__DIR__) . '/app/views/admin/' . $view;

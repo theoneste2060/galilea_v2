@@ -20,8 +20,14 @@ content-management portal.
 - Hero slider, services grid, live shipment **Track & Trace**, stats, news,
   leadership team, testimonials slider, quote form, newsletter — all from the DB.
 - **UX & accessibility:** skip-to-content link, visible focus styles, ARIA on
-  menus/sliders/forms, breadcrumbs, inline form validation, loading states,
-  `prefers-reduced-motion` support, and a cookie-consent banner.
+  menus/sliders/forms, breadcrumbs, **accessible floating-label forms**,
+  **global toasts**, **skeleton loaders**, `prefers-reduced-motion`, and a
+  cookie-consent banner.
+- **Engagement:** site search overlay (`/` shortcut) with a results page,
+  scroll/reading-progress bar, a floating **WhatsApp** button, and a mobile
+  sticky action bar (Track / Call / Quote).
+- **Design system:** CSS custom-property tokens (color, spacing, radius,
+  shadow, motion, type) underpin both the site and admin styles.
 - Loads fast: lazy-loaded images, deferred JS, font preconnect, browser caching.
 - Tracking, quote requests, and newsletter signups are submitted over AJAX to
   JSON endpoints with CSRF protection and anti-spam honeypots.
@@ -37,7 +43,9 @@ content-management portal.
 - **Site Settings** (contacts, stats, SEO), **Admin Users** (super-admin only),
   and **Activity Logs**.
 - **Image uploads via drag-and-drop** (no external links) with strict MIME/size
-  validation.
+  validation, plus a **Media Library** (browse, copy URL, delete).
+- **List management:** per-section search, pagination, **bulk delete**, and
+  **drag-to-reorder** for ordered content; toasts and responsive card tables.
 - **Summernote** rich-text editor for long-form content (service descriptions,
   news bodies).
 

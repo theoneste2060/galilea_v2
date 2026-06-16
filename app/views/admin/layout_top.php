@@ -19,6 +19,7 @@ $contentNav = [
 $engageNav = [
     'inquiries'   => ['Inquiries', '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>'],
     'subscribers' => ['Subscribers', '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'],
+    'media'       => ['Media Library', '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>'],
 ];
 $systemNav = [
     'account'  => ['My Account', '<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>'],
@@ -66,6 +67,7 @@ function nav_item(string $key, array $item, string $current): string {
 <link rel="stylesheet" href="<?= esc(asset_url('/assets/css/admin.css')) ?>">
 </head>
 <body>
+<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
 <aside class="sidebar" id="sb">
   <div class="sb-brand">
     <div style="display:flex;align-items:center;gap:9px;min-width:0">
@@ -106,6 +108,7 @@ function nav_item(string $key, array $item, string $current): string {
     </div>
   </div>
   <div class="pc">
-    <?php foreach (take_flashes() as $f): ?>
-      <div class="alert alert-<?= $f['type'] === 'error' ? 'err' : 'ok' ?>"><?= esc($f['msg']) ?></div>
-    <?php endforeach; ?>
+    <?php $flashes = take_flashes(); if ($flashes): ?>
+      <div id="flashData" data-flashes='<?= esc(json_encode($flashes)) ?>' hidden></div>
+      <noscript><?php foreach ($flashes as $f): ?><div class="alert alert-<?= $f['type'] === 'error' ? 'err' : 'ok' ?>"><?= esc($f['msg']) ?></div><?php endforeach; ?></noscript>
+    <?php endif; ?>

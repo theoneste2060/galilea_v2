@@ -218,6 +218,29 @@ if ($path === '/contact') {
     exit;
 }
 
+// Site search.
+if ($path === '/search') {
+    $q = trim(input('q'));
+    $results = [];
+    if (mb_strlen($q) >= 2) {
+        $like = '%' . $q . '%';
+        foreach (Database::all('SELECT title, slug, short_description AS excerpt FROM services WHERE is_active=1 AND (title LIKE ? OR short_description LIKE ? OR description LIKE ?) LIMIT 12', [$like, $like, $like]) as $r) {
+            $results[] = ['kind' => 'Service', 'title' => $r['title'], 'url' => '/services/' . $r['slug'], 'excerpt' => $r['excerpt']];
+        }
+        foreach (Database::all('SELECT title, slug, excerpt FROM news_posts WHERE published=1 AND (title LIKE ? OR excerpt LIKE ? OR body LIKE ?) LIMIT 12', [$like, $like, $like]) as $r) {
+            $results[] = ['kind' => 'Insight', 'title' => $r['title'], 'url' => '/insights/' . $r['slug'], 'excerpt' => $r['excerpt']];
+        }
+        foreach (Database::all('SELECT title, slug, meta_description AS excerpt FROM pages WHERE is_active=1 AND (title LIKE ? OR body LIKE ?) LIMIT 8', [$like, $like]) as $r) {
+            $results[] = ['kind' => 'Page', 'title' => $r['title'], 'url' => '/' . $r['slug'], 'excerpt' => $r['excerpt']];
+        }
+        foreach (Database::all('SELECT question, answer FROM faqs WHERE is_active=1 AND (question LIKE ? OR answer LIKE ?) LIMIT 8', [$like, $like]) as $r) {
+            $results[] = ['kind' => 'FAQ', 'title' => $r['question'], 'url' => '/#faq', 'excerpt' => mb_strimwidth($r['answer'], 0, 140, '…')];
+        }
+    }
+    require "$views/search_results.php";
+    exit;
+}
+
 // Static CMS pages (about, careers, privacy, terms, cookies, …).
 if (count($segments) === 1) {
     $cms = Database::one('SELECT * FROM pages WHERE slug = ? AND is_active = 1', [$segments[0]]);

@@ -25,6 +25,7 @@ function admin_sections(): array
     }
     $sections['inquiries'] = 'Inquiries';
     $sections['subscribers'] = 'Subscribers';
+    $sections['media'] = 'Media Library';
     $sections['activity'] = 'Activity Logs';
     return $sections;
 }

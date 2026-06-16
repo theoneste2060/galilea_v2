@@ -300,6 +300,7 @@ final class Database
                 ['phone_rw_alt', 'Rwanda Phone (alt)', '+250 785 476 239', 'contact'],
                 ['phone_cn', 'China Phone', '+86 195 8475 4091', 'contact'],
                 ['address_kigali', 'Kigali Address', 'F1-8B Unify Building, Nyarugenge, Kigali', 'contact'],
+                ['whatsapp_number', 'WhatsApp Number (digits only, with country code)', '250788229632', 'contact'],
                 ['hero_eyebrow', 'Hero Eyebrow', 'Trusted Trade · Global Reach', 'hero'],
                 ['stat_countries', 'Countries Served', '130', 'stats'],
                 ['stat_ports', 'Port Partners', '48', 'stats'],
