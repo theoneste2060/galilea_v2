@@ -2013,12 +2013,19 @@ html[data-theme="dark"] .sc-icon-wrap svg{color:var(--gold)}
 /* Phone polish: tighter gutters, scaled headings, comfortable card padding. */
 @media(max-width:560px){
   .container{padding:0 16px}
+  /* The utility bar is hidden on mobile, so the inner-page hero needs less top. */
+  .page-hero{padding:92px 0 38px}
   .page-hero-title{font-size:30px;line-height:1.15}
   .page-hero-sub{font-size:14.5px}
   .service-card{padding:26px 22px}
   .detail-side{margin-top:8px}
   .related-block{margin-top:36px;padding-top:28px}
   .cta-band{flex-direction:column;text-align:center;gap:16px}
+  .cta-band .btn-gold-lg{width:100%;justify-content:center}
+  /* Full-width, easy-to-tap hero CTAs. */
+  .hero-actions{flex-direction:column;align-items:stretch}
+  .hero-actions .btn-primary,.hero-actions .btn-outline-white{width:100%;justify-content:center}
+  .detail-layout{gap:24px}
 }
 /* Guard against any element forcing horizontal scroll on small screens. */
 @media(max-width:560px){html,body{overflow-x:hidden}img{max-width:100%}}
