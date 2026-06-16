@@ -61,9 +61,17 @@ content-management portal.
 ---
 
 ## Requirements
-- PHP **8.1+** with `pdo_sqlite`, `fileinfo`, `mbstring`, and `dom` extensions
-  (all standard).
+- PHP **8.1+** with `pdo_sqlite`, `fileinfo`, `mbstring`, `curl`, and `dom`
+  extensions (all standard).
 - No Composer dependencies, no build step.
+
+## Tests
+A dependency-free smoke-test suite boots the app on a throwaway port + database
+and asserts the public site, admin portal and security rules over HTTP:
+```bash
+php tests/run.php   # exits non-zero if any check fails
+```
+See [`tests/README.md`](tests/README.md) for coverage.
 
 ## Running locally
 ```bash

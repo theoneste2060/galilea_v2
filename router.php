@@ -5,7 +5,7 @@ $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 // Never expose application code, the database, or deploy files (they live
 // inside the docroot under the flat layout). Mirrors the Apache rules in
 // .htaccess and the nginx config in deploy/nginx.conf.
-if (preg_match('#^/(app|data|deploy)(/|$)#', $path)) {
+if (preg_match('#^/(app|data|deploy|tests)(/|$)#', $path)) {
     http_response_code(403);
     exit('Forbidden');
 }
