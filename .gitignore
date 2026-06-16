@@ -4,9 +4,13 @@
 /data/*.sqlite-shm
 
 # User uploads (runtime content)
-/public/uploads/*
-!/public/uploads/.gitkeep
-!/public/uploads/.htaccess
+/uploads/*
+!/uploads/.gitkeep
+!/uploads/.htaccess
+
+# Build artifacts / packages (never commit)
+*.zip
+*.deb
 
 # Reference material / scratch (kept out of the deliverable)
 /Desktop/

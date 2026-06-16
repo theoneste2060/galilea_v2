@@ -1,6 +1,6 @@
 :root{
   --navy:#0D2645;--navy-deep:#061528;--gold:#C9A84C;--gold-dark:#b8923e;
-  --ink:#1a2332;--muted:#5A6478;--muted-2:#8a95a7;--line:#e8edf3;--bg:#F5F7FA;--bg-soft:#fafbfc;--white:#fff;
+  --ink:#1a2332;--muted:#5A6478;--muted-2:#6b7689;--line:#e8edf3;--bg:#F5F7FA;--bg-soft:#fafbfc;--white:#fff;
   --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-8:48px;
   --radius-sm:6px;--radius:10px;--radius-lg:16px;--radius-pill:999px;
   --shadow-sm:0 2px 8px rgba(6,21,40,.06);--shadow:0 14px 34px rgba(6,21,40,.10);--shadow-lg:0 24px 60px rgba(6,21,40,.18);
@@ -1908,3 +1908,11 @@ a.service-card,a.news-card{text-decoration:none;color:inherit;display:block}
 .tr-skel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow-sm)}
 .tr-skel .sk-row{height:14px;margin-bottom:12px}
 @media(prefers-reduced-motion:reduce){.skeleton::after{animation:none}}
+
+/* ═══ Motion polish + active nav (v3.1) ═══ */
+.nav-link-btn{position:relative}
+.nav-link-btn::after{content:'';position:absolute;left:12px;right:12px;bottom:4px;height:2px;background:var(--gold);border-radius:2px;transform:scaleX(0);transform-origin:left;transition:transform .22s var(--ease)}
+.nav-link-btn:hover::after,.nav-link-btn.is-current::after{transform:scaleX(1)}
+.btn-primary:active,.btn-gold-lg:active,.nl-submit:active,.track-submit:active{transform:translateY(1px)}
+.service-card,.news-card,.mini-card,.industry-card{transition:transform .2s var(--ease),box-shadow .2s var(--ease),border-color .2s var(--ease)}
+@media(prefers-reduced-motion:reduce){.nav-link-btn::after{transition:none}}

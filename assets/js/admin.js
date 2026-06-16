@@ -93,6 +93,18 @@
     }
   })();
 
+  // ── THEME TOGGLE (dark mode) ──
+  (function () {
+    var btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      var next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('galilea_theme', next); } catch (e) {}
+    });
+  })();
+
   // ── TOASTS ──
   var toastWrap = document.getElementById('toastWrap');
   function toast(msg, type) {

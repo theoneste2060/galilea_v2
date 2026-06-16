@@ -46,6 +46,9 @@ content-management portal.
   validation, plus a **Media Library** (browse, copy URL, delete).
 - **List management:** per-section search, pagination, **bulk delete**, and
   **drag-to-reorder** for ordered content; toasts and responsive card tables.
+- **Dark mode** — a persisted, no-flash theme toggle for the admin dashboard.
+- **Motion & a11y:** subtle hover/press micro-interactions, `aria-current` on
+  the active nav, and AA-tuned text contrast (all under `prefers-reduced-motion`).
 - **Summernote** rich-text editor for long-form content (service descriptions,
   news bodies).
 
@@ -59,7 +62,7 @@ content-management portal.
 ## Running locally
 ```bash
 # from the project root — the router enables clean URLs on the built-in server
-php -S 127.0.0.1:8000 -t public public/router.php
+php -S 127.0.0.1:8000 router.php
 ```
 Then open <http://127.0.0.1:8000/>. The database and schema are created
 automatically on first request (`data/galilea.sqlite`) and seeded with demo

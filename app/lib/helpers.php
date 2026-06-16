@@ -374,7 +374,7 @@ function optimise_to_webp(string $srcPath, string $mime, string $destPath): bool
 /** Cache-busting URL for a local public asset (appends ?v=mtime). */
 function asset_url(string $path): string
 {
-    $full = APP_ROOT . '/public' . $path;
+    $full = APP_ROOT . $path;
     $v = is_file($full) ? substr((string) filemtime($full), -6) : '1';
     return $path . '?v=' . $v;
 }

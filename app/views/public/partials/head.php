@@ -10,6 +10,7 @@ $st = site_settings();
 $g = fn(string $k, string $d = '') => esc($st[$k] ?? $d);
 $menu = nav_menu();
 $here = current_path();
+$isCur = fn(string $u): string => ('/' . trim($u, '/')) === $here ? ' aria-current="page"' : '';
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,10 +106,10 @@ $here = current_path();
             </div>
           </li>
           <?php else: ?>
-          <li class="nav-item" role="none"><a href="<?= esc($top['url']) ?>" class="nav-link-btn" role="menuitem"><?= esc($top['title']) ?></a></li>
+          <li class="nav-item" role="none"><a href="<?= esc($top['url']) ?>" class="nav-link-btn<?= $isCur($top['url']) ? ' is-current' : '' ?>"<?= $isCur($top['url']) ?> role="menuitem"><?= esc($top['title']) ?></a></li>
           <?php endif; ?>
         <?php endforeach; ?>
-        <li class="nav-item" role="none"><a href="/track" class="nav-link-btn" role="menuitem">Track &amp; Trace</a></li>
+        <li class="nav-item" role="none"><a href="/track" class="nav-link-btn<?= $here === '/track' ? ' is-current' : '' ?>"<?= $here === '/track' ? ' aria-current="page"' : '' ?> role="menuitem">Track &amp; Trace</a></li>
       </ul>
 
       <div class="nav-right">
