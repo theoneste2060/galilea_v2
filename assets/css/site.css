@@ -277,6 +277,11 @@
     .nav-btn-ghost:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.6); color: #fff; }
     #mainNav.scrolled .nav-btn-ghost { color: var(--navy); border-color: var(--navy); }
     #mainNav.scrolled .nav-btn-ghost:hover { background: var(--navy); color: #fff; }
+    /* When the bar turns white on scroll, recolor the icon buttons so they stay
+       visible (CSS overrides the inline white stroke on the hamburger). */
+    #mainNav.scrolled .hamburger svg { stroke: var(--ink); }
+    #mainNav.scrolled .search-toggle,
+    #mainNav.scrolled .theme-toggle { color: var(--ink); }
 
     .nav-btn-primary {
       padding: 8px 20px;
@@ -292,7 +297,7 @@
     .nav-btn-primary:hover { background: #c0a480; transform: translateY(-1px); }
 
     /* Hamburger */
-    .hamburger { display: none; }
+    .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 9px; align-items: center; justify-content: center; border-radius: 8px; }
 
     /* ── HERO ── */
     .hero {
@@ -1301,7 +1306,7 @@
       color: var(--ink);
       text-decoration: none;
       border-radius: 6px;
-      border-bottom: 1px solid #f0f2f5;
+      border-bottom: 1px solid var(--line);
     }
     .mn-link:last-child { border-bottom: none; }
     .mn-link:hover { background: var(--bg); color: var(--navy); }
@@ -1727,17 +1732,19 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .mega-promo-btn svg{width:14px;height:14px}
 
 /* Mobile accordion mega */
-.mn-group{border-bottom:1px solid rgba(255,255,255,.08)}
-.mn-acc{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;color:#fff;font-family:'Montserrat',sans-serif;font-size:16px;font-weight:600;padding:15px 0;cursor:pointer}
-.mn-acc svg{width:18px;height:18px;transition:transform .25s}
-.mn-acc[aria-expanded="true"] svg{transform:rotate(180deg)}
+.mn-group{border-bottom:1px solid var(--line)}
+.mn-acc{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;color:var(--ink);font-family:'Montserrat',sans-serif;font-size:16px;font-weight:600;padding:15px 12px;cursor:pointer;text-align:left}
+.mn-acc svg{width:18px;height:18px;transition:transform .25s;color:var(--muted)}
+.mn-acc[aria-expanded="true"]{color:var(--navy)}
+.mn-acc[aria-expanded="true"] svg{transform:rotate(180deg);color:var(--gold-dark)}
 .mn-sub{max-height:0;overflow:hidden;transition:max-height .3s ease}
 .mn-sub.open{max-height:600px}
-.mn-link.sub{font-size:14px;color:rgba(255,255,255,.6);padding:10px 0 10px 14px}
+.mn-link.sub{font-size:14px;color:var(--muted);padding:11px 0 11px 26px}
+.mn-link.sub:hover{color:var(--navy)}
 .mn-actions{display:flex;flex-direction:column;gap:10px}
 .mn-act-ghost,.mn-act-primary{padding:14px;border-radius:8px;font-weight:700;font-size:15px;text-align:center;text-decoration:none}
 .mn-act-ghost{background:var(--navy);color:#fff}
-.mn-act-primary{background:var(--gold);color:var(--navy)}
+.mn-act-primary{background:var(--gold);color:var(--navy-deep)}
 .nav-btn-ghost,.nav-btn-primary{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 
 /* Cookie consent */
