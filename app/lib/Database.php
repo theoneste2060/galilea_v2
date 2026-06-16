@@ -188,6 +188,16 @@ final class Database
             is_active INTEGER NOT NULL DEFAULT 1
         );
 
+        CREATE TABLE IF NOT EXISTS faqs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            question TEXT NOT NULL,
+            answer TEXT NOT NULL DEFAULT '',
+            sort_order INTEGER NOT NULL DEFAULT 0,
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
         CREATE TABLE IF NOT EXISTS pages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
@@ -266,6 +276,17 @@ final class Database
                 ['stat_support', 'Support Hours', '24', 'stats'],
                 ['seo_title', 'SEO Title', 'Galilea Global Logistics — Trusted Trade. Global Reach.', 'seo'],
                 ['seo_description', 'SEO Description', 'Sea & air cargo, land freight, customs clearance, warehousing and China business connections from Kigali and Guangzhou to the world.', 'seo'],
+                ['site_url', 'Canonical Site URL (e.g. https://galileagloballogistics.rw)', '', 'seo'],
+                ['og_image', 'Default Social Share Image', '/assets/img/logo.jpeg', 'seo'],
+                ['org_legal_name', 'Legal Organization Name', 'Galilea Global Logistics Ltd.', 'seo'],
+                ['analytics_id', 'Google Analytics ID (G-XXXXXXXXXX)', '', 'analytics'],
+                ['twitter_handle', 'Twitter/X Handle (@name)', '', 'social'],
+                ['social_linkedin', 'LinkedIn URL', '', 'social'],
+                ['social_facebook', 'Facebook URL', '', 'social'],
+                ['social_youtube', 'YouTube URL', '', 'social'],
+                ['geo_placename', 'Geo Placename', 'Kigali, Rwanda', 'geo'],
+                ['geo_lat', 'Headquarters Latitude', '-1.9441', 'geo'],
+                ['geo_lng', 'Headquarters Longitude', '30.0619', 'geo'],
             ];
             $stmt = $pdo->prepare('INSERT INTO site_settings (key, label, value, group_name) VALUES (?,?,?,?)');
             foreach ($settings as $s) {
@@ -352,6 +373,19 @@ final class Database
                 'INSERT INTO shipments (reference_number, customer_name, origin, destination, current_stage, status, stages) VALUES (?,?,?,?,?,?,?)',
                 ['GALU1234567', 'Savanna Trade Supplies', 'Nairobi, Kenya', 'Shanghai, China', 'In transit to Shanghai', 'In Transit', $stages]
             );
+        }
+
+        if ((int) self::value('SELECT COUNT(*) FROM faqs') === 0) {
+            $faqs = [
+                ['What shipping services does Galilea Global Logistics offer?', 'Galilea offers sea cargo and ocean freight (FCL & LCL), air freight, road and land transport, warehousing and distribution, customs clearance and declaration, and China business connection including supplier sourcing and money transfers.', 1],
+                ['Which countries and routes does Galilea serve?', 'Galilea operates across 130+ countries with a focus on the China–East Africa corridor. We have offices in Kigali (Rwanda), Guangzhou and Yiwu (China), enabling direct routing between China and Rwanda, Kenya and the wider region.', 2],
+                ['How do I track my shipment?', 'Enter your container number, booking reference, or bill of lading on our Track & Trace page to see live status and milestones. You can also call our Rwanda office for assistance.', 3],
+                ['Does Galilea handle customs clearance and dangerous goods?', 'Yes. We provide full customs clearance, maritime declaration, dangerous goods declaration and duty management, handled by licensed experts at the Kigali office.', 4],
+                ['Can Galilea help me source products from China?', 'Yes. Through our Guangzhou and Yiwu offices we connect you with verified suppliers, arrange factory visits, handle money transfers to suppliers, and consolidate and ship your goods to East Africa.', 5],
+                ['How do I request a freight quote?', 'Use the Get a Quote form on our Contact page or email info@galileagloballogistics.rw. Our team typically responds within one business day.', 6],
+            ];
+            $stmt = $pdo->prepare('INSERT INTO faqs (question, answer, sort_order) VALUES (?,?,?)');
+            foreach ($faqs as $f) { $stmt->execute($f); }
         }
 
         if ((int) self::value('SELECT COUNT(*) FROM pages') === 0) {

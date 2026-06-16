@@ -1,6 +1,7 @@
 <?php
 $st = site_settings();
-$meta = ['title' => 'Track & Trace — Galilea Global Logistics', 'description' => 'Track your Galilea shipment live by container, booking reference or bill of lading number.'];
+$meta = ['title' => 'Track & Trace — Galilea Global Logistics', 'description' => 'Track your Galilea shipment live by container, booking reference or bill of lading number.',
+    'breadcrumbs' => [['name' => 'Home', 'url' => '/'], ['name' => 'Track & Trace', 'url' => '/track']]];
 require __DIR__ . '/partials/head.php';
 ?>
 <header class="page-hero">

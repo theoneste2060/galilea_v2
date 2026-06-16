@@ -2,7 +2,8 @@
 /** @var array $services */
 $st = site_settings();
 $g = fn(string $k, string $d = '') => esc($st[$k] ?? $d);
-$meta = ['title' => 'Contact & Quote — Galilea Global Logistics', 'description' => 'Get in touch with Galilea Global Logistics in Kigali, Guangzhou and Yiwu. Request a freight quote today.'];
+$meta = ['title' => 'Contact & Quote — Galilea Global Logistics', 'description' => 'Get in touch with Galilea Global Logistics in Kigali, Guangzhou and Yiwu. Request a freight quote today.',
+    'breadcrumbs' => [['name' => 'Home', 'url' => '/'], ['name' => 'Contact', 'url' => '/contact']]];
 require __DIR__ . '/partials/head.php';
 ?>
 <header class="page-hero">

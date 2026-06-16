@@ -1,7 +1,8 @@
 <?php
 /** @var array $services */
 $svcIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>';
-$meta = ['title' => 'Services — Galilea Global Logistics', 'description' => 'Sea & air freight, road transport, warehousing, customs clearance and China sourcing — full-service logistics from Galilea.'];
+$meta = ['title' => 'Services — Galilea Global Logistics', 'description' => 'Sea & air freight, road transport, warehousing, customs clearance and China sourcing — full-service logistics from Galilea.',
+    'breadcrumbs' => [['name' => 'Home', 'url' => '/'], ['name' => 'Services', 'url' => '/services']]];
 require __DIR__ . '/partials/head.php';
 ?>
 <header class="page-hero">

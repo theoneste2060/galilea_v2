@@ -1,6 +1,30 @@
 <?php
 /** @var array $post @var array $more */
-$meta = ['title' => esc($post['title']) . ' — Galilea Insights', 'description' => $post['excerpt']];
+$meta = [
+    'title' => $post['title'] . ' — Galilea Insights',
+    'description' => $post['excerpt'],
+    'type' => 'article',
+    'image' => $post['image_path'] ?: '/assets/img/logo.jpeg',
+    'published' => $post['published_at'],
+    'modified' => $post['updated_at'] ?? $post['published_at'],
+    'breadcrumbs' => [
+        ['name' => 'Home', 'url' => '/'],
+        ['name' => 'Insights', 'url' => '/insights'],
+        ['name' => $post['title'], 'url' => '/insights/' . $post['slug']],
+    ],
+    'schema' => [[
+        '@type' => 'NewsArticle',
+        'headline' => $post['title'],
+        'description' => $post['excerpt'],
+        'image' => abs_url($post['image_path'] ?: '/assets/img/logo.jpeg'),
+        'datePublished' => date('c', strtotime($post['published_at'])),
+        'dateModified' => date('c', strtotime($post['updated_at'] ?? $post['published_at'])),
+        'articleSection' => $post['category'],
+        'author' => ['@id' => base_url() . '/#organization'],
+        'publisher' => ['@id' => base_url() . '/#organization'],
+        'mainEntityOfPage' => abs_url('/insights/' . $post['slug']),
+    ]],
+];
 require __DIR__ . '/partials/head.php';
 ?>
 <header class="page-hero">

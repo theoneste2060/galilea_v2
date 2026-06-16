@@ -31,7 +31,7 @@ content-management portal.
   **login rate limiting**.
 - Dashboard with live content/engagement counts and an audit trail.
 - Full CRUD for **Hero Slides, Services, News & Insights, Testimonials, Team
-  Members, Shipments, Static Pages, and the Navigation Menu** (build the
+  Members, Shipments, FAQs, Static Pages, and the Navigation Menu** (build the
   mega-menu: top-level headings + child links with icons, columns and order).
 - **Inquiries** inbox (with status workflow) and **Newsletter Subscribers**.
 - **Site Settings** (contacts, stats, SEO), **Admin Users** (super-admin only),
@@ -82,6 +82,32 @@ The `app/` and `data/` directories must **not** be web-accessible. Ensure
 `GALILEA_ADMIN_USER` / `GALILEA_ADMIN_PASS` env vars *before* the first run.
 
 ---
+
+## SEO & GEO
+**Technical / on-page SEO**
+- Per-page `<title>`, meta description, **canonical URL**, and robots directives.
+- **Open Graph** + **Twitter Card** tags with a configurable default share image.
+- Dynamic **`/sitemap.xml`** (home, services, insights, pages) and **`/robots.txt`**.
+- JSON-LD structured data on every page: `Organization`, `WebSite` (with a
+  Track-&-Trace `SearchAction`), `BreadcrumbList`, `Service`, `NewsArticle`,
+  and `FAQPage` — all validated as a single `@graph`.
+- Optional **Google Analytics (GA4)** — injected only when an ID is configured,
+  with the CSP automatically widened just for that case.
+
+**GEO — geographic / local SEO**
+- `LocalBusiness` schema for each office (Kigali HQ, Guangzhou, Yiwu) with
+  postal addresses and `GeoCoordinates`.
+- `geo.region`, `geo.placename`, `geo.position` and `ICBM` meta tags.
+- Editable HQ coordinates and placename in **Site Settings → Geo / Local SEO**.
+
+**GEO — Generative Engine Optimization (AI answer engines)**
+- **`/llms.txt`** — a concise, machine-readable company brief (services,
+  contacts, key links) that LLM-based search engines can ingest and cite.
+- An admin-managed **FAQ** section rendered with `FAQPage` schema — ideal for
+  Google rich results and AI-generated answers.
+
+All SEO/GEO values (canonical URL, share image, social handles, analytics ID,
+geo coordinates, legal name) are editable under **Site Settings**.
 
 ## Security highlights
 - **SQL injection** — every query uses PDO prepared statements.

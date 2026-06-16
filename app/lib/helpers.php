@@ -61,15 +61,23 @@ function send_security_headers(bool $allowSummernoteCdn = false): void
     $script = "'self'";
     $style  = "'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com";
     $font   = "'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com";
+    $img    = "'self' data: blob:";
+    $connect = "'self'";
     if ($allowSummernoteCdn) {
         $script .= ' https://cdnjs.cloudflare.com';
     }
+    // Allow Google Analytics (GA4) only when an analytics ID is configured.
+    if (function_exists('analytics_enabled') && analytics_enabled()) {
+        $script .= " 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com";
+        $img     .= ' https://www.google-analytics.com https://www.googletagmanager.com';
+        $connect .= ' https://www.google-analytics.com https://www.googletagmanager.com';
+    }
     $csp = "default-src 'self'; "
-        . "img-src 'self' data: blob:; "
+        . "img-src $img; "
         . "script-src $script; "
         . "style-src $style; "
         . "font-src $font; "
-        . "connect-src 'self'; "
+        . "connect-src $connect; "
         . "object-src 'none'; "
         . "base-uri 'self'; "
         . "form-action 'self'; "

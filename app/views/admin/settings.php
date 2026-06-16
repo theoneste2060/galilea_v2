@@ -4,7 +4,7 @@ $groups = [];
 foreach ($settings as $s) {
     $groups[$s['group_name']][] = $s;
 }
-$groupTitles = ['contact' => 'Contact Details', 'hero' => 'Hero Section', 'stats' => 'Statistics', 'seo' => 'SEO & Meta', 'general' => 'General'];
+$groupTitles = ['contact' => 'Contact Details', 'hero' => 'Hero Section', 'stats' => 'Statistics', 'seo' => 'SEO & Meta', 'geo' => 'Geo / Local SEO', 'social' => 'Social Profiles', 'analytics' => 'Analytics', 'general' => 'General'];
 ?>
 <div class="ph">
   <div class="phl"><div class="pey">System</div><h1 class="pt">Site Settings</h1><p class="ps">Global content shown across the public website.</p></div>

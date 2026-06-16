@@ -4,7 +4,19 @@ $st = site_settings();
 $g = fn(string $k, string $d = '') => esc($st[$k] ?? $d);
 $svcIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>';
 $testChunks = array_chunk($testimonials, 3);
+$faqs = $faqs ?? [];
 $meta = ['title' => setting('seo_title', 'Galilea Global Logistics — Trusted Trade. Global Reach.'), 'description' => setting('seo_description')];
+// FAQPage structured data (rich results + Generative Engine Optimization).
+if ($faqs) {
+    $meta['schema'][] = [
+        '@type' => 'FAQPage',
+        'mainEntity' => array_map(fn($f) => [
+            '@type' => 'Question',
+            'name' => $f['question'],
+            'acceptedAnswer' => ['@type' => 'Answer', 'text' => $f['answer']],
+        ], $faqs),
+    ];
+}
 require __DIR__ . '/partials/head.php';
 ?>
 
@@ -252,6 +264,23 @@ require __DIR__ . '/partials/head.php';
     </div>
   </div>
 </section>
+
+<!-- ── FAQ (rich results + AI answer engines) ── -->
+<?php if ($faqs): ?>
+<section class="faq-section" id="faq">
+  <div class="container">
+    <div class="faq-head reveal"><p class="section-label">Answers</p><h2 class="section-title">Frequently asked questions</h2></div>
+    <div class="faq-list reveal">
+      <?php foreach ($faqs as $i => $f): ?>
+      <details class="faq-item"<?= $i === 0 ? ' open' : '' ?>>
+        <summary><?= esc($f['question']) ?><span class="faq-plus" aria-hidden="true"></span></summary>
+        <div class="faq-answer"><p><?= esc($f['answer']) ?></p></div>
+      </details>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
 
 <!-- ── NEWSLETTER ── -->
 <section class="newsletter-section" style="padding-top:0">

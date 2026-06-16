@@ -68,10 +68,76 @@ if ($action === 'newsletter' && is_post()) {
     json_out(['ok' => true, 'message' => 'You are subscribed. Welcome aboard!']);
 }
 
+/* ───────────────────────── SEO / GEO machine files ───────────────────── */
+
+$reqPath = current_path();
+
+if ($reqPath === '/robots.txt') {
+    header('Content-Type: text/plain; charset=utf-8');
+    $base = base_url();
+    echo "User-agent: *\n";
+    echo "Allow: /\n";
+    echo "Disallow: /admin.php\n";
+    echo "Disallow: /uploads/\n\n";
+    echo "Sitemap: $base/sitemap.xml\n";
+    exit;
+}
+
+if ($reqPath === '/sitemap.xml') {
+    header('Content-Type: application/xml; charset=utf-8');
+    $base = base_url();
+    $urls = [
+        ['/', '1.0', 'daily'],
+        ['/services', '0.9', 'weekly'],
+        ['/insights', '0.8', 'daily'],
+        ['/track', '0.7', 'monthly'],
+        ['/contact', '0.7', 'monthly'],
+    ];
+    foreach (Database::all('SELECT slug FROM services WHERE is_active = 1') as $r) {
+        $urls[] = ['/services/' . $r['slug'], '0.8', 'monthly'];
+    }
+    foreach (Database::all('SELECT slug FROM news_posts WHERE published = 1') as $r) {
+        $urls[] = ['/insights/' . $r['slug'], '0.6', 'monthly'];
+    }
+    foreach (Database::all('SELECT slug FROM pages WHERE is_active = 1') as $r) {
+        $urls[] = ['/' . $r['slug'], '0.4', 'yearly'];
+    }
+    echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+    foreach ($urls as [$loc, $pri, $freq]) {
+        echo "  <url><loc>" . esc($base . $loc) . "</loc><changefreq>$freq</changefreq><priority>$pri</priority></url>\n";
+    }
+    echo '</urlset>';
+    exit;
+}
+
+if ($reqPath === '/llms.txt') {
+    // Generative Engine Optimization: a concise, machine-readable company brief
+    // that AI answer engines can ingest and cite.
+    header('Content-Type: text/plain; charset=utf-8');
+    $st = site_settings();
+    $base = base_url();
+    echo "# Galilea Global Logistics Ltd.\n\n";
+    echo "> Trusted Trade. Global Reach. A Kigali-headquartered freight forwarder connecting East Africa and China through sea, air and land freight, customs clearance, warehousing and supplier sourcing.\n\n";
+    echo "## Contact\n";
+    echo "- Email: " . ($st['site_email'] ?? '') . "\n";
+    echo "- Rwanda phone: " . ($st['phone_rw'] ?? '') . "\n";
+    echo "- China phone: " . ($st['phone_cn'] ?? '') . "\n";
+    echo "- Head office: " . ($st['address_kigali'] ?? '') . ", Nyarugenge, Kigali, Rwanda\n";
+    echo "- Other offices: Guangzhou and Yiwu, China\n\n";
+    echo "## Services\n";
+    foreach (Database::all('SELECT title, short_description, slug FROM services WHERE is_active = 1 ORDER BY sort_order') as $s) {
+        echo "- [" . $s['title'] . "](" . $base . "/services/" . $s['slug'] . "): " . $s['short_description'] . "\n";
+    }
+    echo "\n## Key pages\n";
+    echo "- [Services](" . $base . "/services)\n- [Track & Trace](" . $base . "/track)\n- [Insights](" . $base . "/insights)\n- [Contact / Quote](" . $base . "/contact)\n- [About](" . $base . "/about)\n";
+    exit;
+}
+
 /* ─────────────────────────────── Routing ─────────────────────────────── */
 
 header('Cache-Control: private, max-age=60');
-$path = current_path();
+$path = $reqPath;
 $segments = $path === '/' ? [] : explode('/', trim($path, '/'));
 $views = dirname(__DIR__) . '/app/views/public';
 
@@ -82,6 +148,7 @@ if ($path === '/') {
     $news         = Database::all('SELECT * FROM news_posts WHERE published = 1 ORDER BY published_at DESC LIMIT 3');
     $testimonials = Database::all('SELECT * FROM testimonials WHERE is_active = 1 ORDER BY id LIMIT 6');
     $team         = Database::all('SELECT * FROM team_members WHERE is_active = 1 ORDER BY sort_order, full_name LIMIT 8');
+    $faqs         = Database::all('SELECT * FROM faqs WHERE is_active = 1 ORDER BY sort_order, id');
     require "$views/home.php";
     exit;
 }

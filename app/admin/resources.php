@@ -119,6 +119,21 @@ return [
         ],
     ],
 
+    'faqs' => [
+        'table' => 'faqs',
+        'label' => 'FAQs',
+        'singular' => 'FAQ',
+        'icon' => '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+        'order' => 'sort_order, id',
+        'list_columns' => ['question' => 'Question', 'sort_order' => 'Order', 'is_active' => 'Active'],
+        'fields' => [
+            'question'   => ['type' => 'text', 'label' => 'Question', 'required' => true],
+            'answer'     => ['type' => 'textarea', 'label' => 'Answer (plain text — used for AI/rich results)', 'required' => true],
+            'sort_order' => ['type' => 'number', 'label' => 'Sort order'],
+            'is_active'  => ['type' => 'checkbox', 'label' => 'Active', 'default' => 1],
+        ],
+    ],
+
     'pages' => [
         'table' => 'pages',
         'label' => 'Static Pages',

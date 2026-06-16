@@ -1,6 +1,24 @@
 <?php
 /** @var array $service @var array $more */
-$meta = ['title' => esc($service['title']) . ' — Galilea Global Logistics', 'description' => $service['short_description']];
+$meta = [
+    'title' => $service['title'] . ' — Galilea Global Logistics',
+    'description' => $service['short_description'],
+    'image' => $service['image_path'] ?: '/assets/img/logo.jpeg',
+    'breadcrumbs' => [
+        ['name' => 'Home', 'url' => '/'],
+        ['name' => 'Services', 'url' => '/services'],
+        ['name' => $service['title'], 'url' => '/services/' . $service['slug']],
+    ],
+    'schema' => [[
+        '@type' => 'Service',
+        'name' => $service['title'],
+        'description' => $service['short_description'],
+        'url' => abs_url('/services/' . $service['slug']),
+        'serviceType' => $service['title'],
+        'provider' => ['@id' => base_url() . '/#organization'],
+        'areaServed' => ['Rwanda', 'East Africa', 'China', 'Worldwide'],
+    ]],
+];
 require __DIR__ . '/partials/head.php';
 ?>
 <header class="page-hero">

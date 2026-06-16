@@ -12,6 +12,7 @@ $contentNav = [
     'testimonials' => ['Testimonials', $resources['testimonials']['icon']],
     'team'         => ['Team Members', $resources['team']['icon']],
     'shipments'    => ['Shipments', $resources['shipments']['icon']],
+    'faqs'         => ['FAQs', $resources['faqs']['icon']],
     'pages'        => ['Static Pages', $resources['pages']['icon']],
     'menu'         => ['Navigation Menu', $resources['menu']['icon']],
 ];
