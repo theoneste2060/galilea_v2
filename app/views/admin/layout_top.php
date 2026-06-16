@@ -74,7 +74,7 @@ function nav_item(string $key, array $item, string $current): string {
 <aside class="sidebar" id="sb">
   <div class="sb-brand">
     <div style="display:flex;align-items:center;gap:9px;min-width:0">
-      <div class="sb-lm" style="overflow:hidden;padding:0"><img src="/assets/img/logo.jpeg" alt="Galilea" style="width:100%;height:100%;object-fit:cover;border-radius:7px"></div>
+      <div class="sb-lm" style="overflow:hidden;padding:0"><img src="/assets/img/logo.jpeg" alt="Galilea" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>
       <div class="sb-brand-text">
         <div class="sb-name">Galilea</div>
         <span class="sb-sub">Global Logistics</span>

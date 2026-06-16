@@ -18,7 +18,7 @@ html{font-size:16px}
 .ls-p{position:absolute;border-radius:50%;background:rgba(201,168,76,0.05);animation:fp linear infinite}
 @keyframes fp{0%{transform:translateY(110vh) scale(0);opacity:1}100%{transform:translateY(-20vh) scale(1);opacity:0}}
 .ls-card{position:relative;z-index:2;width:370px;max-width:92vw;display:flex;flex-direction:column;align-items:center}
-.ls-globe{width:68px;height:68px;border-radius:18px;background:rgba(201,168,76,0.1);border:1.5px solid rgba(201,168,76,0.28);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(201,168,76,0.12);margin-bottom:16px}
+.ls-globe{width:68px;height:68px;border-radius:50%;background:rgba(201,168,76,0.1);border:1.5px solid rgba(201,168,76,0.28);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(201,168,76,0.12);margin-bottom:16px}
 .ls-globe svg{width:32px;height:32px;color:var(--gold)}
 .ls-bname{font-size:13px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.08em;text-align:center;margin-bottom:2px}
 .ls-bsub{font-size:9px;font-weight:500;color:var(--gold);letter-spacing:.14em;text-transform:uppercase;text-align:center;margin-bottom:36px}
@@ -51,7 +51,7 @@ body{font-family:'Montserrat','Inter',sans-serif;background:#F5F7FA;color:#1a233
 .sidebar{width:232px;min-height:100vh;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:width .24s ease}
 .sidebar.collapsed{width:56px}
 .sb-brand{padding:15px 12px 13px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;gap:6px;overflow:hidden}
-.sb-lm{width:32px;height:32px;border-radius:7px;background:rgba(201,168,76,.18);border:1px solid rgba(201,168,76,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-lm{width:32px;height:32px;border-radius:50%;background:rgba(201,168,76,.18);border:1px solid rgba(201,168,76,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sb-lm svg{width:16px;height:16px;color:var(--gold)}
 .sb-brand-text{overflow:hidden;transition:opacity .18s,max-width .24s;max-width:170px;white-space:nowrap}
 .sidebar.collapsed .sb-brand-text{opacity:0;max-width:0}

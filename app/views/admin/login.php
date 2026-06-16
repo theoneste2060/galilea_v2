@@ -13,7 +13,7 @@
   <div class="ls-bg" id="ls-bg"></div>
   <div class="ls-card">
     <div class="ls-globe" style="overflow:hidden;padding:0">
-      <img src="/assets/img/logo.jpeg" alt="Galilea" style="width:100%;height:100%;object-fit:cover;border-radius:16px">
+      <img src="/assets/img/logo.jpeg" alt="Galilea" style="width:100%;height:100%;object-fit:cover;border-radius:50%">
     </div>
     <div class="ls-bname">Galilea Global Logistics</div>
     <div class="ls-bsub">Administration Portal</div>
