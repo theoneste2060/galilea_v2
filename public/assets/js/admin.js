@@ -85,6 +85,14 @@
     });
   });
 
+  // Render TOTP QR code (qrcodejs loaded only on the account setup page).
+  (function () {
+    var el = document.getElementById('totp-qr');
+    if (el && window.QRCode && el.dataset.uri) {
+      new QRCode(el, { text: el.dataset.uri, width: 158, height: 158, correctLevel: QRCode.CorrectLevel.M });
+    }
+  })();
+
   // Auto-dismiss flash messages.
   setTimeout(function () {
     document.querySelectorAll('.alert').forEach(function (a) {

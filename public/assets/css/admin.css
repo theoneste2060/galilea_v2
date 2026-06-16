@@ -309,3 +309,5 @@ body{font-family:'Montserrat','Inter',sans-serif;background:#F5F7FA;color:#1a233
 .note-editor .note-editing-area{background:#fff}
 code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:11px;color:#0D2645}
 @media(max-width:760px){.sidebar{width:56px}.sidebar .sb-brand-text,.sidebar .nit{opacity:0;max-width:0}.main{margin-left:56px}.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.fr2,.fr3{grid-template-columns:1fr}}
+.sections-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 14px;background:#fafbfc;border:1px solid #eef1f5;border-radius:8px;padding:14px}
+@media(max-width:760px){.sections-grid{grid-template-columns:1fr 1fr}}

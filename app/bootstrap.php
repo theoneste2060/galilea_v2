@@ -19,6 +19,7 @@ require __DIR__ . '/lib/helpers.php';
 require __DIR__ . '/lib/Database.php';
 require __DIR__ . '/lib/site.php';
 require __DIR__ . '/lib/seo.php';
+require __DIR__ . '/lib/Totp.php';
 
 Database::init($config);
 

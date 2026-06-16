@@ -18,6 +18,24 @@
     <div class="ls-bname">Galilea Global Logistics</div>
     <div class="ls-bsub">Administration Portal</div>
     <?php if ($error): ?><div class="ls-err show"><?= esc($error) ?></div><?php endif; ?>
+    <?php if (($step ?? 'credentials') === '2fa'): ?>
+    <div class="ls-title">Two-Factor Verification</div>
+    <div class="ls-subtitle">Enter the 6-digit code from your authenticator app</div>
+    <form method="post" action="/admin.php?p=login" autocomplete="one-time-code">
+      <?= csrf_field() ?>
+      <div class="ls-fields">
+        <div class="ls-field">
+          <input type="text" name="code" class="ls-input" placeholder="123456" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" required autofocus style="text-align:center;letter-spacing:.4em;font-size:18px">
+          <span class="ls-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+        </div>
+      </div>
+      <button class="ls-unlock" type="submit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Verify &amp; Sign In
+      </button>
+    </form>
+    <div class="ls-hint">Lost your device? Contact a super-admin to reset 2FA.</div>
+    <?php else: ?>
     <form method="post" action="/admin.php?p=login" autocomplete="on">
       <?= csrf_field() ?>
       <div class="ls-fields">
@@ -36,6 +54,7 @@
       </button>
     </form>
     <div class="ls-hint">Protected area · authorised personnel only</div>
+    <?php endif; ?>
     <a href="/" class="ls-back" style="text-decoration:none">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       Back to website

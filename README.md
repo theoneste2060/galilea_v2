@@ -114,14 +114,24 @@ geo coordinates, legal name) are editable under **Site Settings**.
 - **XSS** — all output escaped via `esc()`; rich-text HTML passes through a
   strict allowlist sanitiser (`sanitize_html`) before storage.
 - **CSRF** — token on every state-changing form, verified with `hash_equals`.
-- **Sessions** — `HttpOnly` + `SameSite=Lax` (+ `Secure` over HTTPS), ID
-  regenerated on login, bound to a client fingerprint.
+- **Two-factor auth (TOTP)** — optional per-account, RFC 6238, dependency-free;
+  works with Google Authenticator/Authy/1Password and is enforced at login.
+- **Sessions** — `HttpOnly` + `SameSite=Lax` (+ `Secure`/HSTS over HTTPS), ID
+  regenerated on login, bound to a client fingerprint, with **idle (30 min)**
+  and **absolute (8 h)** timeouts.
+- **Role + delegated access** — super-admins have full control; editors are
+  restricted to the exact sections granted to them.
+- **Brute force / abuse** — per-IP login throttling with lockout, plus
+  rate-limiting on the public track/inquiry/newsletter endpoints (HTTP 429).
 - **Uploads** — real MIME type detected with `finfo` + `getimagesize`,
   randomised filenames, size cap, and script execution disabled in
   `public/uploads/` via `.htaccess`.
-- **Brute force** — per-IP login throttling with lockout.
-- **Headers** — Content-Security-Policy, `X-Frame-Options: DENY`,
-  `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`.
+- **Headers** — Content-Security-Policy (auto-widened only when analytics is
+  enabled), HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
+  `Referrer-Policy`, `Permissions-Policy`.
+- **Backups** — one-click `.sqlite` snapshot (`VACUUM INTO`) and CSV exports of
+  inquiries/subscribers (super-admin only).
+- **Disclosure** — `/.well-known/security.txt` published.
 - **Auditing** — admin actions recorded to the activity log.
 
 ## Project layout

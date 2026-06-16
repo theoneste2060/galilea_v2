@@ -21,11 +21,26 @@ $engageNav = [
     'subscribers' => ['Subscribers', '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'],
 ];
 $systemNav = [
-    'settings' => ['Site Settings', '<path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>'],
+    'account'  => ['My Account', '<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>'],
     'activity' => ['Activity Logs', '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'],
 ];
 if (($admin['role'] ?? '') === 'superadmin') {
-    $systemNav = ['users' => ['Users', '<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>']] + $systemNav;
+    $systemNav = [
+        'users'    => ['Users', '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>'],
+        'settings' => ['Site Settings', '<path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>'],
+        'backup'   => ['Backup &amp; Export', '<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>'],
+    ] + $systemNav;
+}
+
+// Editors only see sections they are granted.
+if (($admin['role'] ?? '') !== 'superadmin') {
+    $allowed = $admin['allowed_sections'] ?? [];
+    $filter = function (array $nav) use ($allowed) {
+        return array_filter($nav, fn($k) => $k === 'dashboard' || $k === 'account' || in_array($k, $allowed, true), ARRAY_FILTER_USE_KEY);
+    };
+    $contentNav = $filter($contentNav);
+    $engageNav = $filter($engageNav);
+    $systemNav = $filter($systemNav);
 }
 
 $titles = array_merge(
@@ -72,8 +87,8 @@ function nav_item(string $key, array $item, string $current): string {
   </nav>
   <div class="sb-footer">
     <div class="sb-user">
-      <div class="uav"><?= esc($initials) ?></div>
-      <div class="sb-ui"><div class="un"><?= esc($admin['full_name']) ?></div><div class="ue"><?= esc($admin['role']) ?></div></div>
+      <a href="/admin.php?p=account" class="uav" title="My account" style="text-decoration:none"><?= esc($initials) ?></a>
+      <a href="/admin.php?p=account" class="sb-ui" style="text-decoration:none"><div class="un"><?= esc($admin['full_name']) ?></div><div class="ue"><?= esc($admin['role']) ?></div></a>
       <form method="post" action="/admin.php?p=logout" style="margin-left:auto">
         <?= csrf_field() ?>
         <button class="logout-btn" type="submit" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>

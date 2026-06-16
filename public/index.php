@@ -10,6 +10,9 @@ $action = input('action');
 /* ───────────────────────── JSON / form API actions ───────────────────── */
 
 if ($action === 'track') {
+    if (!rate_limit('track', 40, 60)) {
+        json_out(['ok' => false, 'error' => 'Too many requests. Please slow down.'], 429);
+    }
     $ref = input('ref');
     if (mb_strlen($ref) < 3) {
         json_out(['ok' => false, 'error' => 'Please enter a valid reference number.'], 422);
@@ -28,6 +31,9 @@ if ($action === 'track') {
 
 if ($action === 'inquiry' && is_post()) {
     csrf_check();
+    if (!rate_limit('inquiry', 5, 600)) {
+        json_out(['ok' => false, 'error' => 'Too many submissions. Please try again later.'], 429);
+    }
     $name    = input('full_name');
     $email   = input('email');
     $phone   = input('phone');
@@ -53,6 +59,9 @@ if ($action === 'inquiry' && is_post()) {
 
 if ($action === 'newsletter' && is_post()) {
     csrf_check();
+    if (!rate_limit('newsletter', 5, 600)) {
+        json_out(['ok' => false, 'error' => 'Too many submissions. Please try again later.'], 429);
+    }
     $email = input('email');
     if (!valid_email($email)) {
         json_out(['ok' => false, 'error' => 'Please enter a valid email address.'], 422);
@@ -71,6 +80,17 @@ if ($action === 'newsletter' && is_post()) {
 /* ───────────────────────── SEO / GEO machine files ───────────────────── */
 
 $reqPath = current_path();
+
+if ($reqPath === '/security.txt' || $reqPath === '/.well-known/security.txt') {
+    header('Content-Type: text/plain; charset=utf-8');
+    $st = site_settings();
+    $email = $st['site_email'] ?? 'info@galileagloballogistics.rw';
+    echo "Contact: mailto:$email\n";
+    echo "Preferred-Languages: en\n";
+    echo "Canonical: " . base_url() . "/.well-known/security.txt\n";
+    echo "Expires: " . gmdate('Y-m-d\TH:i:s\Z', strtotime('+1 year')) . "\n";
+    exit;
+}
 
 if ($reqPath === '/robots.txt') {
     header('Content-Type: text/plain; charset=utf-8');

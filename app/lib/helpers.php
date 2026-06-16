@@ -56,6 +56,13 @@ function send_security_headers(bool $allowSummernoteCdn = false): void
     header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
     header_remove('X-Powered-By');
 
+    // Enforce HTTPS for a year (incl. subdomains) once served over TLS.
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || ($_SERVER['SERVER_PORT'] ?? null) == 443;
+    if ($https) {
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+    }
+
     // Content Security Policy. Fonts come from Google; the admin rich-text
     // editor (Summernote) and jQuery load from a pinned CDN.
     $script = "'self'";
@@ -336,11 +343,25 @@ function is_authenticated(): bool
     return !empty($_SESSION['admin']['id']);
 }
 
+const ADMIN_IDLE_TIMEOUT = 1800;    // 30 minutes of inactivity
+const ADMIN_ABSOLUTE_TIMEOUT = 28800; // 8 hours max session age
+
 function require_admin(): void
 {
     if (!is_authenticated()) {
         redirect('/admin.php?p=login');
     }
+    // Enforce idle + absolute session timeouts.
+    $now = time();
+    $last = $_SESSION['admin']['last_activity'] ?? $now;
+    $start = $_SESSION['admin']['login_time'] ?? $now;
+    if (($now - $last) > ADMIN_IDLE_TIMEOUT || ($now - $start) > ADMIN_ABSOLUTE_TIMEOUT) {
+        $_SESSION = [];
+        session_regenerate_id(true);
+        flash('Your session expired. Please sign in again.', 'error');
+        redirect('/admin.php?p=login');
+    }
+    $_SESSION['admin']['last_activity'] = $now;
 }
 
 function require_role(string ...$roles): void
@@ -350,4 +371,44 @@ function require_role(string ...$roles): void
         http_response_code(403);
         exit('Forbidden — insufficient privileges.');
     }
+}
+
+/** Whether the current admin may access a given section/page key. */
+function can_access(string $section): bool
+{
+    $admin = current_admin();
+    if (($admin['role'] ?? '') === 'superadmin') {
+        return true;
+    }
+    // Always-available sections for any authenticated admin.
+    if (in_array($section, ['dashboard', 'account', 'logout'], true)) {
+        return true;
+    }
+    $allowed = $admin['allowed_sections'] ?? [];
+    return in_array($section, $allowed, true);
+}
+
+function require_access(string $section): void
+{
+    if (!can_access($section)) {
+        http_response_code(403);
+        exit('Forbidden — you do not have access to this section.');
+    }
+}
+
+/**
+ * Fixed-window rate limiter backed by the api_hits table.
+ * Returns true if the request is allowed, false if the limit is exceeded.
+ */
+function rate_limit(string $action, int $max, int $windowSecs): bool
+{
+    $ip = client_ip();
+    Database::run("DELETE FROM api_hits WHERE created_at < datetime('now', ?)",
+        ['-' . $windowSecs . ' seconds']);
+    $count = (int) Database::value(
+        'SELECT COUNT(*) FROM api_hits WHERE action = ? AND ip = ?',
+        [$action, $ip]
+    );
+    Database::run('INSERT INTO api_hits (ip, action) VALUES (?, ?)', [$ip, $action]);
+    return $count < $max;
 }
