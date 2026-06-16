@@ -15,8 +15,8 @@ content-management portal.
   promo cell — fully accessible (keyboard, `aria-expanded`, ESC/outside-click to
   close) with a mobile accordion version.
 - **Clean URL routing** with real pages: services listing + detail, insights
-  listing (paginated) + article, contact/quote, track, and CMS pages
-  (about/careers/privacy/terms/cookies), plus a branded 404.
+  listing (paginated, **filterable by category**) + article, contact/quote,
+  track, and CMS pages (about/careers/privacy/terms/cookies), plus a branded 404.
 - Hero slider, services grid, live shipment **Track & Trace**, stats, news,
   leadership team, testimonials slider, quote form, newsletter — all from the DB.
 - **UX & accessibility:** skip-to-content link, visible focus styles, ARIA on
@@ -36,7 +36,8 @@ content-management portal.
 ### Admin portal (`/admin.php`)
 - Secure login with bcrypt password hashing, session hardening, and per-IP
   **login rate limiting**.
-- Dashboard with live content/engagement counts and an audit trail.
+- Dashboard with live content/engagement counts, **trend & status charts**
+  (dependency-free), and an audit trail.
 - Full CRUD for **Hero Slides, Services, News & Insights, Testimonials, Team
   Members, Shipments, FAQs, Static Pages, and the Navigation Menu** (build the
   mega-menu: top-level headings + child links with icons, columns and order).

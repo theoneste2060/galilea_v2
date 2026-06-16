@@ -199,8 +199,13 @@ if ($segments[0] === 'insights') {
     }
     $page = max(1, (int) input('page', '1'));
     $per = 9;
-    $total = (int) Database::value('SELECT COUNT(*) FROM news_posts WHERE published = 1');
-    $posts = Database::all('SELECT * FROM news_posts WHERE published = 1 ORDER BY published_at DESC LIMIT ? OFFSET ?', [$per, ($page - 1) * $per]);
+    $categories = array_column(Database::all("SELECT DISTINCT category FROM news_posts WHERE published = 1 AND category <> '' ORDER BY category"), 'category');
+    $cat = trim(input('cat'));
+    if ($cat !== '' && !in_array($cat, $categories, true)) { $cat = ''; }
+    $where = 'published = 1' . ($cat !== '' ? ' AND category = ?' : '');
+    $params = $cat !== '' ? [$cat] : [];
+    $total = (int) Database::value("SELECT COUNT(*) FROM news_posts WHERE $where", $params);
+    $posts = Database::all("SELECT * FROM news_posts WHERE $where ORDER BY published_at DESC LIMIT ? OFFSET ?", array_merge($params, [$per, ($page - 1) * $per]));
     $pages = (int) ceil($total / $per);
     require "$views/insights_list.php";
     exit;

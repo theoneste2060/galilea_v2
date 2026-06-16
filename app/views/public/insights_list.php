@@ -14,8 +14,16 @@ require __DIR__ . '/partials/head.php';
 
 <section class="section-pad">
   <div class="container">
+    <?php if (!empty($categories)): ?>
+    <div class="filter-bar" role="group" aria-label="Filter by category">
+      <a href="/insights" class="filter-chip<?= ($cat ?? '') === '' ? ' active' : '' ?>">All</a>
+      <?php foreach ($categories as $c): ?>
+        <a href="/insights?cat=<?= urlencode($c) ?>" class="filter-chip<?= ($cat ?? '') === $c ? ' active' : '' ?>"><?= esc($c) ?></a>
+      <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
     <?php if (!$posts): ?>
-      <p style="text-align:center;color:#5A6478">No articles published yet. Check back soon.</p>
+      <p style="text-align:center;color:var(--muted)"><?= ($cat ?? '') !== '' ? 'No articles in “' . esc($cat) . '” yet.' : 'No articles published yet. Check back soon.' ?></p>
     <?php else: ?>
     <div class="news-grid">
       <?php foreach ($posts as $n): ?>
@@ -32,8 +40,9 @@ require __DIR__ . '/partials/head.php';
     </div>
     <?php if ($pages > 1): ?>
     <nav class="pager" aria-label="Pagination">
+      <?php $catQ = ($cat ?? '') !== '' ? '&cat=' . urlencode($cat) : ''; ?>
       <?php for ($i = 1; $i <= $pages; $i++): ?>
-        <a href="/insights?page=<?= $i ?>" class="pager-link<?= $i === $page ? ' active' : '' ?>"><?= $i ?></a>
+        <a href="/insights?page=<?= $i ?><?= $catQ ?>" class="pager-link<?= $i === $page ? ' active' : '' ?>"><?= $i ?></a>
       <?php endfor; ?>
     </nav>
     <?php endif; ?>

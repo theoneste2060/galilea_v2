@@ -11,6 +11,20 @@ $inquiriesTotal = (int) Database::value('SELECT COUNT(*) FROM inquiries');
 $inquiriesNew   = (int) Database::value("SELECT COUNT(*) FROM inquiries WHERE status = 'new'");
 $recentInq = Database::all('SELECT * FROM inquiries ORDER BY created_at DESC LIMIT 6');
 $recentAct = Database::all('SELECT * FROM activity_log ORDER BY created_at DESC LIMIT 8');
+
+// Inquiries trend — last 14 days (zero-filled).
+$days = [];
+for ($i = 13; $i >= 0; $i--) { $days[date('Y-m-d', strtotime("-$i days"))] = 0; }
+foreach (Database::all("SELECT date(created_at) d, COUNT(*) c FROM inquiries WHERE date(created_at) >= date('now','-13 days') GROUP BY date(created_at)") as $r) {
+    if (isset($days[$r['d']])) { $days[$r['d']] = (int) $r['c']; }
+}
+$maxDay = max(1, max($days));
+$trend14 = array_sum($days);
+
+// Inquiry status breakdown.
+$statusRows = Database::all('SELECT status, COUNT(*) c FROM inquiries GROUP BY status ORDER BY c DESC');
+$statusMax = 1;
+foreach ($statusRows as $s) { $statusMax = max($statusMax, (int) $s['c']); }
 ?>
 <div class="ph">
   <div class="phl">
@@ -25,6 +39,37 @@ $recentAct = Database::all('SELECT * FROM activity_log ORDER BY created_at DESC 
   <div class="sm"><div class="sml">Services</div><div class="smv"><?= $counts['services'] ?></div><div class="sms">Published offerings</div></div>
   <div class="sm blue"><div class="sml">Shipments</div><div class="smv"><?= $counts['shipments'] ?></div><div class="sms">Trackable records</div></div>
   <div class="sm green"><div class="sml">Subscribers</div><div class="smv"><?= $counts['subscribers'] ?></div><div class="sms">Newsletter list</div></div>
+</div>
+
+<div class="g2" style="margin-bottom:16px">
+  <div class="card">
+    <div class="ch"><div><div class="ct">Inquiries — last 14 days</div><div class="cs"><?= $trend14 ?> received in this period</div></div></div>
+    <div class="cb">
+      <div class="chart-bars" role="img" aria-label="Daily inquiries over the last 14 days">
+        <?php foreach ($days as $d => $c): ?>
+        <div class="cbar" title="<?= esc(date('M j', strtotime($d))) ?>: <?= $c ?>">
+          <span class="cbar-fill" style="height:<?= $c ? max(4, round($c / $maxDay * 100)) : 0 ?>%"></span>
+        </div>
+        <?php endforeach; ?>
+      </div>
+      <div class="chart-axis"><span><?= esc(date('M j', strtotime(array_key_first($days)))) ?></span><span>Today</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div><div class="ct">Inquiries by status</div><div class="cs">Across <?= $inquiriesTotal ?> total</div></div></div>
+    <div class="cb">
+      <?php if (!$statusRows): ?>
+        <p style="color:var(--muted-2);font-size:13px">No inquiries yet.</p>
+      <?php else: foreach ($statusRows as $s): ?>
+        <div class="hbar">
+          <span class="hbar-label"><?= esc($s['status']) ?></span>
+          <span class="hbar-track"><span class="hbar-fill<?= $s['status'] === 'new' ? ' is-new' : '' ?>" style="width:<?= round($s['c'] / $statusMax * 100) ?>%"></span></span>
+          <span class="hbar-val"><?= (int) $s['c'] ?></span>
+        </div>
+      <?php endforeach; endif; ?>
+    </div>
+  </div>
 </div>
 
 <div class="g2">
