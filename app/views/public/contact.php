@@ -22,19 +22,22 @@ require __DIR__ . '/partials/head.php';
         <form id="inquiryForm" class="inquiry-form" autocomplete="on" novalidate>
           <?= csrf_field() ?>
           <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
-          <div class="if-row">
-            <input type="text" name="full_name" placeholder="Full name *" required>
-            <input type="email" name="email" placeholder="Email address *" required>
+          <div class="field-row">
+            <div class="field"><input type="text" id="c_name" name="full_name" placeholder=" " required><label for="c_name">Full name *</label></div>
+            <div class="field"><input type="email" id="c_email" name="email" placeholder=" " required><label for="c_email">Email address *</label></div>
           </div>
-          <div class="if-row">
-            <input type="text" name="phone" placeholder="Phone (optional)">
-            <input type="text" name="company" placeholder="Company (optional)">
+          <div class="field-row">
+            <div class="field"><input type="text" id="c_phone" name="phone" placeholder=" "><label for="c_phone">Phone (optional)</label></div>
+            <div class="field"><input type="text" id="c_company" name="company" placeholder=" "><label for="c_company">Company (optional)</label></div>
           </div>
-          <select name="service_interest">
-            <option value="General Inquiry">What can we help with?</option>
-            <?php foreach ($services as $svc): ?><option value="<?= esc($svc['title']) ?>"><?= esc($svc['title']) ?></option><?php endforeach; ?>
-          </select>
-          <textarea name="message" rows="5" placeholder="Tell us about your shipment or request *" required></textarea>
+          <div class="field is-select">
+            <select id="c_service" name="service_interest">
+              <option value="General Inquiry">General inquiry</option>
+              <?php foreach ($services as $svc): ?><option value="<?= esc($svc['title']) ?>"><?= esc($svc['title']) ?></option><?php endforeach; ?>
+            </select>
+            <label for="c_service">Service of interest</label>
+          </div>
+          <div class="field"><textarea id="c_msg" name="message" rows="5" placeholder=" " required></textarea><label for="c_msg">Tell us about your shipment or request *</label></div>
           <button type="submit" class="nl-submit" style="width:100%">Send Request</button>
           <p class="form-msg" id="inquiryMsg" role="status"></p>
         </form>

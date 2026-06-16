@@ -21,11 +21,13 @@ $here = current_path();
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="<?= esc(asset_url('/assets/css/site.css')) ?>">
 <?= analytics_snippet() ?>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to content</a>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+<div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="false"></div>
 
 <!-- Cookie consent -->
 <div class="cookie-bar" id="cookieBar" role="dialog" aria-label="Cookie notice" hidden>
@@ -110,6 +112,7 @@ $here = current_path();
       </ul>
 
       <div class="nav-right">
+        <button class="search-toggle" id="searchToggle" aria-label="Search" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></button>
         <a href="/admin.php" class="nav-btn-ghost">Sign In</a>
         <a href="/contact" class="nav-btn-primary">Get a Quote</a>
         <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">

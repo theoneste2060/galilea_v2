@@ -20,8 +20,14 @@ content-management portal.
 - Hero slider, services grid, live shipment **Track & Trace**, stats, news,
   leadership team, testimonials slider, quote form, newsletter — all from the DB.
 - **UX & accessibility:** skip-to-content link, visible focus styles, ARIA on
-  menus/sliders/forms, breadcrumbs, inline form validation, loading states,
-  `prefers-reduced-motion` support, and a cookie-consent banner.
+  menus/sliders/forms, breadcrumbs, **accessible floating-label forms**,
+  **global toasts**, **skeleton loaders**, `prefers-reduced-motion`, and a
+  cookie-consent banner.
+- **Engagement:** site search overlay (`/` shortcut) with a results page,
+  scroll/reading-progress bar, a floating **WhatsApp** button, and a mobile
+  sticky action bar (Track / Call / Quote).
+- **Design system:** CSS custom-property tokens (color, spacing, radius,
+  shadow, motion, type) underpin both the site and admin styles.
 - Loads fast: lazy-loaded images, deferred JS, font preconnect, browser caching.
 - Tracking, quote requests, and newsletter signups are submitted over AJAX to
   JSON endpoints with CSRF protection and anti-spam honeypots.
@@ -37,7 +43,9 @@ content-management portal.
 - **Site Settings** (contacts, stats, SEO), **Admin Users** (super-admin only),
   and **Activity Logs**.
 - **Image uploads via drag-and-drop** (no external links) with strict MIME/size
-  validation.
+  validation, plus a **Media Library** (browse, copy URL, delete).
+- **List management:** per-section search, pagination, **bulk delete**, and
+  **drag-to-reorder** for ordered content; toasts and responsive card tables.
 - **Summernote** rich-text editor for long-form content (service descriptions,
   news bodies).
 
@@ -109,19 +117,44 @@ The `app/` and `data/` directories must **not** be web-accessible. Ensure
 All SEO/GEO values (canonical URL, share image, social handles, analytics ID,
 geo coordinates, legal name) are editable under **Site Settings**.
 
+## Performance
+- **Image optimisation on upload** — raster uploads are downscaled (max 1600px)
+  and re-encoded to **WebP** via GD (typically ~50% smaller); animated GIFs are
+  preserved as-is. Falls back to the original file if GD is unavailable.
+- **Cache-busting** — CSS/JS are served with a content-version query string so
+  browsers cache aggressively yet always pick up new builds instantly.
+- **Asset caching** — long-lived `Expires`/cache headers for static assets via
+  `public/.htaccess`; lazy-loaded images and deferred JS site-wide.
+
+> **Deployment note:** the admin rich-text editor (Summernote), jQuery and the
+> 2FA QR helper load from the cdnjs CDN. In locked-down/offline environments,
+> download those files into `public/assets/vendor/` and update the references in
+> `app/views/admin/layout_top.php` / `layout_bottom.php` / `account.php`, then
+> drop `cdnjs.cloudflare.com` from the CSP in `app/lib/helpers.php`.
+
 ## Security highlights
 - **SQL injection** — every query uses PDO prepared statements.
 - **XSS** — all output escaped via `esc()`; rich-text HTML passes through a
   strict allowlist sanitiser (`sanitize_html`) before storage.
 - **CSRF** — token on every state-changing form, verified with `hash_equals`.
-- **Sessions** — `HttpOnly` + `SameSite=Lax` (+ `Secure` over HTTPS), ID
-  regenerated on login, bound to a client fingerprint.
+- **Two-factor auth (TOTP)** — optional per-account, RFC 6238, dependency-free;
+  works with Google Authenticator/Authy/1Password and is enforced at login.
+- **Sessions** — `HttpOnly` + `SameSite=Lax` (+ `Secure`/HSTS over HTTPS), ID
+  regenerated on login, bound to a client fingerprint, with **idle (30 min)**
+  and **absolute (8 h)** timeouts.
+- **Role + delegated access** — super-admins have full control; editors are
+  restricted to the exact sections granted to them.
+- **Brute force / abuse** — per-IP login throttling with lockout, plus
+  rate-limiting on the public track/inquiry/newsletter endpoints (HTTP 429).
 - **Uploads** — real MIME type detected with `finfo` + `getimagesize`,
   randomised filenames, size cap, and script execution disabled in
   `public/uploads/` via `.htaccess`.
-- **Brute force** — per-IP login throttling with lockout.
-- **Headers** — Content-Security-Policy, `X-Frame-Options: DENY`,
-  `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`.
+- **Headers** — Content-Security-Policy (auto-widened only when analytics is
+  enabled), HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
+  `Referrer-Policy`, `Permissions-Policy`.
+- **Backups** — one-click `.sqlite` snapshot (`VACUUM INTO`) and CSV exports of
+  inquiries/subscribers (super-admin only).
+- **Disclosure** — `/.well-known/security.txt` published.
 - **Auditing** — admin actions recorded to the activity log.
 
 ## Project layout

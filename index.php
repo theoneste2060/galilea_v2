@@ -10,6 +10,9 @@ $action = input('action');
 /* ───────────────────────── JSON / form API actions ───────────────────── */
 
 if ($action === 'track') {
+    if (!rate_limit('track', 40, 60)) {
+        json_out(['ok' => false, 'error' => 'Too many requests. Please slow down.'], 429);
+    }
     $ref = input('ref');
     if (mb_strlen($ref) < 3) {
         json_out(['ok' => false, 'error' => 'Please enter a valid reference number.'], 422);
@@ -28,6 +31,9 @@ if ($action === 'track') {
 
 if ($action === 'inquiry' && is_post()) {
     csrf_check();
+    if (!rate_limit('inquiry', 5, 600)) {
+        json_out(['ok' => false, 'error' => 'Too many submissions. Please try again later.'], 429);
+    }
     $name    = input('full_name');
     $email   = input('email');
     $phone   = input('phone');
@@ -53,6 +59,9 @@ if ($action === 'inquiry' && is_post()) {
 
 if ($action === 'newsletter' && is_post()) {
     csrf_check();
+    if (!rate_limit('newsletter', 5, 600)) {
+        json_out(['ok' => false, 'error' => 'Too many submissions. Please try again later.'], 429);
+    }
     $email = input('email');
     if (!valid_email($email)) {
         json_out(['ok' => false, 'error' => 'Please enter a valid email address.'], 422);
@@ -71,6 +80,17 @@ if ($action === 'newsletter' && is_post()) {
 /* ───────────────────────── SEO / GEO machine files ───────────────────── */
 
 $reqPath = current_path();
+
+if ($reqPath === '/security.txt' || $reqPath === '/.well-known/security.txt') {
+    header('Content-Type: text/plain; charset=utf-8');
+    $st = site_settings();
+    $email = $st['site_email'] ?? 'info@galileagloballogistics.rw';
+    echo "Contact: mailto:$email\n";
+    echo "Preferred-Languages: en\n";
+    echo "Canonical: " . base_url() . "/.well-known/security.txt\n";
+    echo "Expires: " . gmdate('Y-m-d\TH:i:s\Z', strtotime('+1 year')) . "\n";
+    exit;
+}
 
 if ($reqPath === '/robots.txt') {
     header('Content-Type: text/plain; charset=utf-8');
@@ -195,6 +215,29 @@ if ($path === '/track') {
 if ($path === '/contact') {
     $services = Database::all('SELECT title FROM services WHERE is_active = 1 ORDER BY sort_order, title');
     require "$views/contact.php";
+    exit;
+}
+
+// Site search.
+if ($path === '/search') {
+    $q = trim(input('q'));
+    $results = [];
+    if (mb_strlen($q) >= 2) {
+        $like = '%' . $q . '%';
+        foreach (Database::all('SELECT title, slug, short_description AS excerpt FROM services WHERE is_active=1 AND (title LIKE ? OR short_description LIKE ? OR description LIKE ?) LIMIT 12', [$like, $like, $like]) as $r) {
+            $results[] = ['kind' => 'Service', 'title' => $r['title'], 'url' => '/services/' . $r['slug'], 'excerpt' => $r['excerpt']];
+        }
+        foreach (Database::all('SELECT title, slug, excerpt FROM news_posts WHERE published=1 AND (title LIKE ? OR excerpt LIKE ? OR body LIKE ?) LIMIT 12', [$like, $like, $like]) as $r) {
+            $results[] = ['kind' => 'Insight', 'title' => $r['title'], 'url' => '/insights/' . $r['slug'], 'excerpt' => $r['excerpt']];
+        }
+        foreach (Database::all('SELECT title, slug, meta_description AS excerpt FROM pages WHERE is_active=1 AND (title LIKE ? OR body LIKE ?) LIMIT 8', [$like, $like]) as $r) {
+            $results[] = ['kind' => 'Page', 'title' => $r['title'], 'url' => '/' . $r['slug'], 'excerpt' => $r['excerpt']];
+        }
+        foreach (Database::all('SELECT question, answer FROM faqs WHERE is_active=1 AND (question LIKE ? OR answer LIKE ?) LIMIT 8', [$like, $like]) as $r) {
+            $results[] = ['kind' => 'FAQ', 'title' => $r['question'], 'url' => '/#faq', 'excerpt' => mb_strimwidth($r['answer'], 0, 140, '…')];
+        }
+    }
+    require "$views/search_results.php";
     exit;
 }
 

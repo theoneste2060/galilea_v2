@@ -1,6 +1,7 @@
 <?php
 require_role('superadmin');
-$rows = Database::all('SELECT id, username, full_name, role, is_active, created_at FROM admin_users ORDER BY id');
+$rows = Database::all('SELECT id, username, full_name, role, is_active, totp_enabled, created_at FROM admin_users ORDER BY id');
+$allSections = admin_sections();
 $editId = (int) input('edit');
 $isNew = input('new') === '1';
 $edit = $editId ? Database::one('SELECT * FROM admin_users WHERE id = ?', [$editId]) : null;
@@ -24,19 +25,31 @@ $edit = $editId ? Database::one('SELECT * FROM admin_users WHERE id = ?', [$edit
       <div class="fg"><label class="fl">Password <?= $editId ? '(leave blank to keep)' : '*' ?></label><input class="fi" type="password" name="password" autocomplete="new-password" <?= $editId ? '' : 'required' ?>><p class="fh">Minimum 8 characters.</p></div>
     </div>
     <div class="fg"><label class="fl-check"><input type="checkbox" name="is_active" value="1"<?= (!isset($edit['is_active']) || $edit['is_active']) ? ' checked' : '' ?>> Active account</label></div>
+
+    <?php $granted = json_decode($edit['allowed_sections'] ?? '[]', true) ?: []; ?>
+    <div class="fg">
+      <label class="fl">Editor section access</label>
+      <p class="fh" style="margin-top:0;margin-bottom:8px">Applies to <strong>Editor</strong> accounts only — super-admins always have full access.</p>
+      <div class="sections-grid">
+        <?php foreach ($allSections as $key => $label): ?>
+        <label class="fl-check"><input type="checkbox" name="sections[]" value="<?= esc($key) ?>"<?= in_array($key, $granted, true) ? ' checked' : '' ?>> <?= esc($label) ?></label>
+        <?php endforeach; ?>
+      </div>
+    </div>
     <div class="mf" style="border:none"><a href="/admin.php?p=users" class="btn btn-ghost">Cancel</a><button class="btn btn-navy" type="submit">Save User</button></div>
   </form>
 </div></div>
 <?php else: ?>
 <div class="card"><div style="overflow-x:auto">
   <table class="dt">
-    <thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
+    <thead><tr><th>Username</th><th>Name</th><th>Role</th><th>2FA</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
     <tbody>
       <?php foreach ($rows as $r): ?>
       <tr>
         <td style="font-weight:700"><?= esc($r['username']) ?></td>
         <td><?= esc($r['full_name']) ?></td>
         <td><span class="bdg <?= $r['role'] === 'superadmin' ? 'bdg-adm' : 'bdg-ed' ?>"><?= esc($r['role']) ?></span></td>
+        <td><?php if (!empty($r['totp_enabled'])): ?><span class="bdg bdg-suc">On</span><?php else: ?><span class="bdg bdg-off">Off</span><?php endif; ?></td>
         <td><?php if ($r['is_active']): ?><span class="bdg bdg-ok"><span class="dot5" style="background:#4ade80"></span>Active</span><?php else: ?><span class="bdg bdg-off">Disabled</span><?php endif; ?></td>
         <td>
           <div class="ibg" style="justify-content:flex-end">

@@ -16,6 +16,20 @@ function admin_resources(): array
     return $res;
 }
 
+/** Sections an editor can be granted access to (key => label). */
+function admin_sections(): array
+{
+    $sections = [];
+    foreach (admin_resources() as $key => $res) {
+        $sections[$key] = $res['label'];
+    }
+    $sections['inquiries'] = 'Inquiries';
+    $sections['subscribers'] = 'Subscribers';
+    $sections['media'] = 'Media Library';
+    $sections['activity'] = 'Activity Logs';
+    return $sections;
+}
+
 function resource_or_404(string $key): array
 {
     $all = admin_resources();

@@ -85,11 +85,92 @@
     });
   });
 
-  // Auto-dismiss flash messages.
-  setTimeout(function () {
-    document.querySelectorAll('.alert').forEach(function (a) {
-      a.style.transition = 'opacity .4s'; a.style.opacity = '0';
-      setTimeout(function () { a.remove(); }, 400);
+  // Render TOTP QR code (qrcodejs loaded only on the account setup page).
+  (function () {
+    var el = document.getElementById('totp-qr');
+    if (el && window.QRCode && el.dataset.uri) {
+      new QRCode(el, { text: el.dataset.uri, width: 158, height: 158, correctLevel: QRCode.CorrectLevel.M });
+    }
+  })();
+
+  // ── TOASTS ──
+  var toastWrap = document.getElementById('toastWrap');
+  function toast(msg, type) {
+    if (!toastWrap) return;
+    var t = document.createElement('div');
+    t.className = 'toast ' + (type || 'ok');
+    t.setAttribute('role', 'status');
+    t.innerHTML = '<span>' + String(msg).replace(/</g, '&lt;') + '</span>';
+    toastWrap.appendChild(t);
+    requestAnimationFrame(function () { t.classList.add('show'); });
+    setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 320); }, 4000);
+  }
+  // Surface server flash messages as toasts.
+  var fd = document.getElementById('flashData');
+  if (fd) {
+    try { (JSON.parse(fd.dataset.flashes) || []).forEach(function (f) { toast(f.msg, f.type === 'error' ? 'err' : 'ok'); }); } catch (e) {}
+  }
+
+  // ── COPY-TO-CLIPBOARD (media library) ──
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.dataset.copy;
+      var done = function () { toast('URL copied to clipboard.', 'ok'); };
+      if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, function () {}); }
+      else { var i = document.createElement('input'); i.value = text; document.body.appendChild(i); i.select(); try { document.execCommand('copy'); done(); } catch (e) {} i.remove(); }
     });
-  }, 4500);
+  });
+
+  // ── BULK SELECT ──
+  (function () {
+    var all = document.getElementById('bulkAll');
+    var bar = document.getElementById('bulkBar');
+    var count = document.getElementById('bulkCount');
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('.row-check'));
+    if (!boxes.length) return;
+    function refresh() {
+      var n = boxes.filter(function (b) { return b.checked; }).length;
+      if (bar) bar.hidden = n === 0;
+      if (count) count.textContent = n + ' selected';
+      if (all) all.checked = n === boxes.length && n > 0;
+    }
+    if (all) all.addEventListener('change', function () { boxes.forEach(function (b) { b.checked = all.checked; }); refresh(); });
+    boxes.forEach(function (b) { b.addEventListener('change', refresh); });
+  })();
+
+  // ── DRAG TO REORDER ──
+  (function () {
+    var table = document.querySelector('.dt[data-reorder]');
+    if (!table) return;
+    var tbody = table.querySelector('tbody');
+    var dragEl = null;
+    tbody.addEventListener('dragstart', function (e) {
+      var tr = e.target.closest('tr'); if (!tr) return;
+      dragEl = tr; tr.classList.add('dragging');
+    });
+    tbody.addEventListener('dragend', function () {
+      if (dragEl) dragEl.classList.remove('dragging');
+      tbody.querySelectorAll('.drag-over').forEach(function (r) { r.classList.remove('drag-over'); });
+      dragEl = null;
+    });
+    tbody.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      var tr = e.target.closest('tr');
+      if (!tr || tr === dragEl) return;
+      var rect = tr.getBoundingClientRect();
+      var after = (e.clientY - rect.top) / rect.height > 0.5;
+      tbody.insertBefore(dragEl, after ? tr.nextSibling : tr);
+    });
+    tbody.addEventListener('drop', function (e) {
+      e.preventDefault();
+      var order = Array.prototype.map.call(tbody.querySelectorAll('tr[data-id]'), function (tr) { return tr.dataset.id; });
+      var csrf = (document.querySelector('input[name="_csrf"]') || {}).value || '';
+      var body = new URLSearchParams(); body.append('_csrf', csrf);
+      order.forEach(function (id) { body.append('order[]', id); });
+      fetch('/admin.php?action=reorder&resource=' + table.dataset.reorder, { method: 'POST', body: body })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { toast(j.ok ? 'Order saved.' : 'Could not save order.', j.ok ? 'ok' : 'err'); })
+        .catch(function () { toast('Could not save order.', 'err'); });
+    });
+  })();
 })();

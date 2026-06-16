@@ -45,6 +45,30 @@ $footServices = Database::all('SELECT title, slug FROM services WHERE is_active 
 
 <button id="btt" aria-label="Back to top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 15l7-7 7 7"/></svg></button>
 
-<script src="/assets/js/site.js" defer></script>
+<?php $wa = preg_replace('/\D/', '', $st['whatsapp_number'] ?? ''); if ($wa): ?>
+<a href="https://wa.me/<?= esc($wa) ?>?text=<?= rawurlencode('Hello Galilea, I would like a logistics quote.') ?>" class="wa-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35zM12.05 21.5h-.01a9.4 9.4 0 01-4.79-1.31l-.34-.2-3.56.93.95-3.47-.22-.36a9.38 9.38 0 01-1.44-5 9.43 9.43 0 019.43-9.43c2.52 0 4.88.98 6.66 2.76a9.37 9.37 0 012.76 6.67c0 5.2-4.23 9.42-9.6 9.42zM20.52 3.45A11.32 11.32 0 0012.05.94C5.8.94.73 6.01.73 12.26c0 1.99.52 3.94 1.51 5.66L.64 23.06l5.28-1.38a11.3 11.3 0 005.4 1.38h.01c6.25 0 11.32-5.07 11.33-11.32a11.26 11.26 0 00-3.32-8.03z"/></svg>
+</a>
+<?php endif; ?>
+
+<!-- Search overlay -->
+<div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-label="Search the site">
+  <div class="search-box">
+    <form action="/search" method="get" role="search">
+      <input type="search" name="q" id="searchInput" placeholder="Search services, insights…" aria-label="Search" autocomplete="off">
+      <button type="submit" class="s-go">Search</button>
+    </form>
+    <p class="search-hint">Press <kbd>Esc</kbd> to close · try “air freight”, “customs”, “China”</p>
+  </div>
+</div>
+
+<!-- Mobile sticky action bar -->
+<div class="mobile-cta" aria-label="Quick actions">
+  <a href="/track" class="mc-btn ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>Track</a>
+  <a href="<?= esc(tel_href($st['phone_rw'] ?? '')) ?>" class="mc-btn ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L6.9 7.1a16 16 0 006 6l.56-.56a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>Call</a>
+  <a href="/contact" class="mc-btn primary">Get a Quote</a>
+</div>
+
+<script src="<?= esc(asset_url('/assets/js/site.js')) ?>" defer></script>
 </body>
 </html>

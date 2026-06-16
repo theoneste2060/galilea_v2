@@ -9,12 +9,42 @@
   window.addEventListener('load', hidePreloader);
   setTimeout(hidePreloader, 2500);
 
+  // ── GLOBAL TOAST ──
+  var toastWrap = $('#toastWrap');
+  var ICONS = {
+    ok: '<svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',
+    err: '<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'
+  };
+  window.toast = function (msg, type) {
+    if (!toastWrap) return;
+    type = type || 'info';
+    var t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.setAttribute('role', 'status');
+    t.innerHTML = (ICONS[type] || ICONS.info) + '<span>' + String(msg).replace(/</g, '&lt;') + '</span>';
+    toastWrap.appendChild(t);
+    requestAnimationFrame(function () { t.classList.add('show'); });
+    setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 350); }, 4200);
+  };
+
+  // ── SCROLL / READING PROGRESS ──
+  var progress = $('#scrollProgress');
+  function updateProgress() {
+    if (!progress) return;
+    var h = document.documentElement;
+    var max = (h.scrollHeight - h.clientHeight) || 1;
+    progress.style.width = Math.min(100, (h.scrollTop / max) * 100) + '%';
+  }
+
   // ── NAV SCROLL ──
   var nav = $('#mainNav'), btt = $('#btt');
   window.addEventListener('scroll', function () {
     if (nav) nav.classList.toggle('scrolled', window.scrollY > 60);
     if (btt) btt.classList.toggle('show', window.scrollY > 400);
+    updateProgress();
   }, { passive: true });
+  updateProgress();
   if (btt) btt.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
   // ── MEGA-MENU (accessible) ──
@@ -154,7 +184,11 @@
     var ref = (trackInput.value || '').trim();
     if (ref.length < 3) { trackErr('Please enter a valid reference number (min 3 characters).'); return; }
     if (trackBtn) trackBtn.disabled = true;
-    trackResult.innerHTML = '<div class="tr-card"><div class="tr-meta" style="border:none"><div class="val" style="color:#8a95a7">Searching…</div></div></div>';
+    trackResult.innerHTML = '<div class="tr-skel">' +
+      '<div class="sk-row skeleton" style="width:40%;height:18px"></div>' +
+      '<div class="sk-row skeleton" style="width:80%"></div>' +
+      '<div class="sk-row skeleton" style="width:65%"></div>' +
+      '<div class="sk-row skeleton" style="width:72%;margin-bottom:0"></div></div>';
     trackResult.classList.add('show');
     fetch('/index.php?action=track&ref=' + encodeURIComponent(ref))
       .then(function (r) { return r.json(); })
@@ -186,8 +220,8 @@
       fetch('/index.php?action=' + action, { method: 'POST', body: new FormData(form) })
         .then(function (r) { return r.json(); })
         .then(function (j) {
-          if (j.ok) { msg.textContent = j.message || 'Thank you!'; msg.className = 'form-msg ok'; form.reset(); }
-          else { msg.textContent = j.error || 'Please check your details and try again.'; msg.className = 'form-msg err'; }
+          if (j.ok) { msg.textContent = j.message || 'Thank you!'; msg.className = 'form-msg ok'; form.reset(); window.toast(j.message || 'Done!', 'ok'); }
+          else { msg.textContent = j.error || 'Please check your details and try again.'; msg.className = 'form-msg err'; window.toast(j.error || 'Please check your details.', 'err'); }
         })
         .catch(function () { msg.textContent = 'Network error. Please try again.'; msg.className = 'form-msg err'; })
         .finally(function () { if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label; } });
@@ -195,6 +229,21 @@
   }
   ajaxForm('inquiryForm', 'inquiryMsg', 'inquiry');
   ajaxForm('newsletterForm', 'newsletterMsg', 'newsletter');
+
+  // ── SEARCH OVERLAY ──
+  (function () {
+    var toggle = $('#searchToggle'), overlay = $('#searchOverlay'), input = $('#searchInput');
+    if (!toggle || !overlay) return;
+    function open() { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; setTimeout(function () { if (input) input.focus(); }, 60); }
+    function close() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+    toggle.addEventListener('click', open);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) close();
+      // Quick-open with "/" when not typing in a field.
+      if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) { e.preventDefault(); open(); }
+    });
+  })();
 
   // ── COOKIE CONSENT ──
   (function () {

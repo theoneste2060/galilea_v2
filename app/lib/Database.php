@@ -228,6 +228,14 @@ final class Database
             attempted_at TEXT NOT NULL DEFAULT (datetime('now'))
         );
 
+        CREATE TABLE IF NOT EXISTS api_hits (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ip TEXT NOT NULL,
+            action TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_api_hits ON api_hits(action, ip, created_at);
+
         CREATE TABLE IF NOT EXISTS activity_log (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
@@ -242,6 +250,29 @@ final class Database
         CREATE INDEX IF NOT EXISTS idx_services_active ON services(is_active, sort_order);
         CREATE INDEX IF NOT EXISTS idx_news_pub ON news_posts(published, published_at);
         SQL);
+
+        // Incremental column additions for the admin_users security features.
+        foreach ([
+            'totp_secret'      => 'TEXT',
+            'totp_enabled'     => 'INTEGER NOT NULL DEFAULT 0',
+            'allowed_sections' => "TEXT NOT NULL DEFAULT '[]'",
+            'last_login_at'    => 'TEXT',
+            'password_changed_at' => 'TEXT',
+        ] as $col => $def) {
+            if (!self::hasColumn('admin_users', $col)) {
+                $pdo->exec("ALTER TABLE admin_users ADD COLUMN $col $def");
+            }
+        }
+    }
+
+    public static function hasColumn(string $table, string $col): bool
+    {
+        foreach (self::all("PRAGMA table_info($table)") as $c) {
+            if ($c['name'] === $col) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Seed bootstrap admin + demo content on first run. */
@@ -269,6 +300,7 @@ final class Database
                 ['phone_rw_alt', 'Rwanda Phone (alt)', '+250 785 476 239', 'contact'],
                 ['phone_cn', 'China Phone', '+86 195 8475 4091', 'contact'],
                 ['address_kigali', 'Kigali Address', 'F1-8B Unify Building, Nyarugenge, Kigali', 'contact'],
+                ['whatsapp_number', 'WhatsApp Number (digits only, with country code)', '250788229632', 'contact'],
                 ['hero_eyebrow', 'Hero Eyebrow', 'Trusted Trade · Global Reach', 'hero'],
                 ['stat_countries', 'Countries Served', '130', 'stats'],
                 ['stat_ports', 'Port Partners', '48', 'stats'],

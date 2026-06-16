@@ -56,6 +56,13 @@ function send_security_headers(bool $allowSummernoteCdn = false): void
     header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
     header_remove('X-Powered-By');
 
+    // Enforce HTTPS for a year (incl. subdomains) once served over TLS.
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || ($_SERVER['SERVER_PORT'] ?? null) == 443;
+    if ($https) {
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+    }
+
     // Content Security Policy. Fonts come from Google; the admin rich-text
     // editor (Summernote) and jQuery load from a pinned CDN.
     $script = "'self'";
@@ -298,19 +305,78 @@ function handle_image_upload(string $field, array $config): ?string
         throw new RuntimeException('File is not a valid image.');
     }
 
-    $ext  = $allowed[$mime];
-    $name = bin2hex(random_bytes(16)) . '.' . $ext;
     $dir  = $config['upload_dir'];
     if (!is_dir($dir)) {
         mkdir($dir, 0775, true);
     }
+    $base = bin2hex(random_bytes(16));
+    $urlBase = rtrim($config['upload_url'], '/');
+
+    // Optimise raster images to WebP (smaller, faster) when GD supports it.
+    // Animated GIFs are kept as-is to preserve animation.
+    if ($mime !== 'image/gif' && function_exists('imagewebp')) {
+        $optimised = optimise_to_webp($file['tmp_name'], $mime, $dir . '/' . $base . '.webp');
+        if ($optimised) {
+            @chmod($dir . '/' . $base . '.webp', 0644);
+            return $urlBase . '/' . $base . '.webp';
+        }
+    }
+
+    // Fallback: store the original (validated) file unchanged.
+    $name = $base . '.' . $allowed[$mime];
     $dest = $dir . '/' . $name;
     if (!move_uploaded_file($file['tmp_name'], $dest)) {
         throw new RuntimeException('Could not save the uploaded image.');
     }
     @chmod($dest, 0644);
+    return $urlBase . '/' . $name;
+}
 
-    return rtrim($config['upload_url'], '/') . '/' . $name;
+/**
+ * Downscale (max 1600px wide) and re-encode an image to WebP via GD.
+ * Returns true on success. Never throws — callers fall back to the original.
+ */
+function optimise_to_webp(string $srcPath, string $mime, string $destPath): bool
+{
+    try {
+        $img = match ($mime) {
+            'image/jpeg' => @imagecreatefromjpeg($srcPath),
+            'image/png'  => @imagecreatefrompng($srcPath),
+            'image/webp' => @imagecreatefromwebp($srcPath),
+            default      => false,
+        };
+        if (!$img) {
+            return false;
+        }
+        $w = imagesx($img);
+        $h = imagesy($img);
+        $max = 1600;
+        if ($w > $max) {
+            $nh = (int) round($h * $max / $w);
+            $resized = imagecreatetruecolor($max, $nh);
+            imagealphablending($resized, false);
+            imagesavealpha($resized, true);
+            imagecopyresampled($resized, $img, 0, 0, 0, 0, $max, $nh, $w, $h);
+            imagedestroy($img);
+            $img = $resized;
+        } else {
+            imagesavealpha($img, true);
+        }
+        $ok = imagewebp($img, $destPath, 82);
+        imagedestroy($img);
+        return $ok && is_file($destPath);
+    } catch (Throwable $e) {
+        error_log('[galilea] webp optimise failed: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/** Cache-busting URL for a local public asset (appends ?v=mtime). */
+function asset_url(string $path): string
+{
+    $full = APP_ROOT . '/public' . $path;
+    $v = is_file($full) ? substr((string) filemtime($full), -6) : '1';
+    return $path . '?v=' . $v;
 }
 
 /* ───────────────────────────  Activity log  ──────────────────────────── */
@@ -336,11 +402,25 @@ function is_authenticated(): bool
     return !empty($_SESSION['admin']['id']);
 }
 
+const ADMIN_IDLE_TIMEOUT = 1800;    // 30 minutes of inactivity
+const ADMIN_ABSOLUTE_TIMEOUT = 28800; // 8 hours max session age
+
 function require_admin(): void
 {
     if (!is_authenticated()) {
         redirect('/admin.php?p=login');
     }
+    // Enforce idle + absolute session timeouts.
+    $now = time();
+    $last = $_SESSION['admin']['last_activity'] ?? $now;
+    $start = $_SESSION['admin']['login_time'] ?? $now;
+    if (($now - $last) > ADMIN_IDLE_TIMEOUT || ($now - $start) > ADMIN_ABSOLUTE_TIMEOUT) {
+        $_SESSION = [];
+        session_regenerate_id(true);
+        flash('Your session expired. Please sign in again.', 'error');
+        redirect('/admin.php?p=login');
+    }
+    $_SESSION['admin']['last_activity'] = $now;
 }
 
 function require_role(string ...$roles): void
@@ -350,4 +430,44 @@ function require_role(string ...$roles): void
         http_response_code(403);
         exit('Forbidden — insufficient privileges.');
     }
+}
+
+/** Whether the current admin may access a given section/page key. */
+function can_access(string $section): bool
+{
+    $admin = current_admin();
+    if (($admin['role'] ?? '') === 'superadmin') {
+        return true;
+    }
+    // Always-available sections for any authenticated admin.
+    if (in_array($section, ['dashboard', 'account', 'logout'], true)) {
+        return true;
+    }
+    $allowed = $admin['allowed_sections'] ?? [];
+    return in_array($section, $allowed, true);
+}
+
+function require_access(string $section): void
+{
+    if (!can_access($section)) {
+        http_response_code(403);
+        exit('Forbidden — you do not have access to this section.');
+    }
+}
+
+/**
+ * Fixed-window rate limiter backed by the api_hits table.
+ * Returns true if the request is allowed, false if the limit is exceeded.
+ */
+function rate_limit(string $action, int $max, int $windowSecs): bool
+{
+    $ip = client_ip();
+    Database::run("DELETE FROM api_hits WHERE created_at < datetime('now', ?)",
+        ['-' . $windowSecs . ' seconds']);
+    $count = (int) Database::value(
+        'SELECT COUNT(*) FROM api_hits WHERE action = ? AND ip = ?',
+        [$action, $ip]
+    );
+    Database::run('INSERT INTO api_hits (ip, action) VALUES (?, ?)', [$ip, $action]);
+    return $count < $max;
 }
