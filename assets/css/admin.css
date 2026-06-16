@@ -394,3 +394,13 @@ html[data-theme="dark"] code{background:#0f1830;color:#cbd4e3}
 .btn:active,.ib:active{transform:translateY(1px)}
 .card{transition:box-shadow .2s var(--ease)}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+
+/* Toggle switch (settings booleans) */
+.switch{position:relative;display:inline-block;width:46px;height:26px}
+.switch input{opacity:0;width:0;height:0}
+.switch-slider{position:absolute;inset:0;cursor:pointer;background:#cbd3df;border-radius:999px;transition:background .2s var(--ease)}
+.switch-slider::before{content:'';position:absolute;height:20px;width:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s var(--ease);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch input:checked + .switch-slider{background:var(--gold)}
+.switch input:checked + .switch-slider::before{transform:translateX(20px)}
+.switch input:focus-visible + .switch-slider{box-shadow:0 0 0 3px rgba(201,168,76,.35)}
+html[data-theme="dark"] .switch-slider{background:#2a3550}

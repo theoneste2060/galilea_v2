@@ -230,6 +230,17 @@
   ajaxForm('inquiryForm', 'inquiryMsg', 'inquiry');
   ajaxForm('newsletterForm', 'newsletterMsg', 'newsletter');
 
+  // ── THEME TOGGLE (dark mode) ──
+  (function () {
+    var btn = $('#themeToggle');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('galilea_theme', next); } catch (e) {}
+    });
+  })();
+
   // ── SEARCH OVERLAY ──
   (function () {
     var toggle = $('#searchToggle'), overlay = $('#searchOverlay'), input = $('#searchInput');

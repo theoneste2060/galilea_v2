@@ -26,6 +26,7 @@ content-management portal.
 - **Engagement:** site search overlay (`/` shortcut) with a results page,
   scroll/reading-progress bar, a floating **WhatsApp** button, and a mobile
   sticky action bar (Track / Call / Quote).
+- **Dark mode** — a persisted, no-flash theme toggle in the nav (site-wide).
 - **Design system:** CSS custom-property tokens (color, spacing, radius,
   shadow, motion, type) underpin both the site and admin styles.
 - Loads fast: lazy-loaded images, deferred JS, font preconnect, browser caching.
@@ -40,6 +41,10 @@ content-management portal.
   Members, Shipments, FAQs, Static Pages, and the Navigation Menu** (build the
   mega-menu: top-level headings + child links with icons, columns and order).
 - **Inquiries** inbox (with status workflow) and **Newsletter Subscribers**.
+- **Email notifications** — new inquiries trigger an admin alert + optional
+  customer auto-reply, sent via a dependency-free SMTP client (STARTTLS/SSL) or
+  the server's `mail()`. All configured in **Site Settings → Email / SMTP**,
+  with a one-click **test-email** button.
 - **Site Settings** (contacts, stats, SEO), **Admin Users** (super-admin only),
   and **Activity Logs**.
 - **Image uploads via drag-and-drop** (no external links) with strict MIME/size

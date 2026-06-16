@@ -54,6 +54,7 @@ if ($action === 'inquiry' && is_post()) {
         'INSERT INTO inquiries (full_name, email, phone, company, service_interest, message) VALUES (?,?,?,?,?,?)',
         [$name, $email, $phone, $company, $service, $message]
     );
+    notify_new_inquiry(compact('name', 'email', 'phone', 'company', 'service', 'message'));
     json_out(['ok' => true, 'message' => 'Thank you — our team will be in touch shortly.']);
 }
 
