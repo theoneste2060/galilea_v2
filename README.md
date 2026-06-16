@@ -66,8 +66,9 @@ php -S 127.0.0.1:8000 router.php
 ```
 Then open <http://127.0.0.1:8000/>. The database and schema are created
 automatically on first request (`data/galilea.sqlite`) and seeded with demo
-content. (Under Apache the root/`public` `.htaccess` handles routing; the
-`router.php` shim is only needed for PHP's built-in dev server.)
+content. (Under Apache the root `.htaccess` handles routing; the `router.php`
+shim is only needed for PHP's built-in dev server. Both block direct access to
+`app/` and `data/`.)
 
 ### Public routes
 `/` · `/services` · `/services/{slug}` · `/insights` · `/insights/{slug}` ·
@@ -75,12 +76,17 @@ content. (Under Apache the root/`public` `.htaccess` handles routing; the
 `/cookies` (and any active page slug) — unknown URLs render a branded 404.
 
 ## Deploying (Apache / shared hosting)
-- Point the document root at the `public/` directory **(recommended)**, or
-- Drop the whole folder in place — the root `.htaccess` rewrites requests into
-  `public/` and blocks access to `app/` and `data/`.
+The repository root is the web root (document root). Drop the whole folder in
+place and point the document root at it — the root `.htaccess` provides
+clean-URL routing and **denies direct access to `app/` and `data/`** (which now
+live inside the web root). Belt-and-suspenders `.htaccess` files in `app/` and
+`data/` deny access on their own as well.
 
-The `app/` and `data/` directories must **not** be web-accessible. Ensure
-`data/` and `public/uploads/` are writable by the web server.
+> **Note:** the `app/` and `data/` directories must never be web-accessible. On
+> Apache the bundled rules handle this. On **nginx** (or any server that ignores
+> `.htaccess`), add an equivalent `location` deny for `^/(app|data)/` and for
+> dotfiles, and disable PHP execution under `/uploads/`. Ensure `data/` and
+> `uploads/` are writable by the web server.
 
 ## First login
 | | |
@@ -127,11 +133,11 @@ geo coordinates, legal name) are editable under **Site Settings**.
 - **Cache-busting** — CSS/JS are served with a content-version query string so
   browsers cache aggressively yet always pick up new builds instantly.
 - **Asset caching** — long-lived `Expires`/cache headers for static assets via
-  `public/.htaccess`; lazy-loaded images and deferred JS site-wide.
+  the root `.htaccess`; lazy-loaded images and deferred JS site-wide.
 
 > **Deployment note:** the admin rich-text editor (Summernote), jQuery and the
 > 2FA QR helper load from the cdnjs CDN. In locked-down/offline environments,
-> download those files into `public/assets/vendor/` and update the references in
+> download those files into `assets/vendor/` and update the references in
 > `app/views/admin/layout_top.php` / `layout_bottom.php` / `account.php`, then
 > drop `cdnjs.cloudflare.com` from the CSP in `app/lib/helpers.php`.
 
@@ -151,7 +157,7 @@ geo coordinates, legal name) are editable under **Site Settings**.
   rate-limiting on the public track/inquiry/newsletter endpoints (HTTP 429).
 - **Uploads** — real MIME type detected with `finfo` + `getimagesize`,
   randomised filenames, size cap, and script execution disabled in
-  `public/uploads/` via `.htaccess`.
+  `uploads/` via `.htaccess`.
 - **Headers** — Content-Security-Policy (auto-widened only when analytics is
   enabled), HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
   `Referrer-Policy`, `Permissions-Policy`.
@@ -161,18 +167,22 @@ geo coordinates, legal name) are editable under **Site Settings**.
 - **Auditing** — admin actions recorded to the activity log.
 
 ## Project layout
+The repository root **is** the web root. Application code (`app/`) and the
+database (`data/`) sit inside it but are blocked from direct web access by
+`.htaccess` rules (and `router.php` on the dev server).
 ```
 galilea_v2/
-├── public/                  # web root (document root)
-│   ├── index.php            # public site + JSON API (track/inquiry/newsletter)
-│   ├── admin.php            # admin front controller (auth + routing)
-│   ├── assets/              # css, js, images, logo
-│   └── uploads/             # drag-and-drop image uploads (runtime)
-├── app/
+├── index.php                # public site + JSON API (track/inquiry/newsletter)
+├── admin.php                # admin front controller (auth + routing)
+├── router.php               # clean-URL shim for PHP's built-in dev server
+├── .htaccess                # routing, caching, and app/ + data/ access denial
+├── assets/                  # css, js, images, logo
+├── uploads/                 # drag-and-drop image uploads (runtime)
+├── app/                     # (web-denied) application code
 │   ├── bootstrap.php        # config, DB init, session
 │   ├── config.php           # settings (env-overridable)
 │   ├── lib/                 # Database.php, helpers.php (security/uploads/auth)
 │   ├── admin/               # resources.php (schema) + engine.php (CRUD)
 │   └── views/               # public/ and admin/ templates
-└── data/                    # SQLite database (created at runtime)
+└── data/                    # (web-denied) SQLite database (created at runtime)
 ```
