@@ -14,7 +14,7 @@ return [
 
     // Directory where uploaded images are stored (inside the web root so they
     // can be served, but writes are strictly validated).
-    'upload_dir'    => dirname(__DIR__) . '/public/uploads',
+    'upload_dir'    => dirname(__DIR__) . '/uploads',
     'upload_url'    => '/uploads',
 
     // Bootstrap admin account. Created on first run only; change the password
