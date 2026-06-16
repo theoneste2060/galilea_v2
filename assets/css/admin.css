@@ -437,3 +437,17 @@ html[data-theme="dark"] .stage-row{background:#0f1830}
 html[data-theme="dark"] .cbar,html[data-theme="dark"] .hbar-track{background:#0f1830}
 html[data-theme="dark"] .hbar-fill{background:#3a4a6b}
 html[data-theme="dark"] .hbar-fill.is-new{background:var(--gold)}
+
+/* ═══ No underlines on admin links (sidebar + panel) ═══ */
+.sidebar a, .main a, .nav-item { text-decoration: none; }
+
+/* ═══ WordPress-style bulk actions toolbar ═══ */
+.tablenav{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.bulk-select{height:34px;padding:0 30px 0 12px;border:1px solid #c9ccd1;border-radius:5px;background:var(--white) url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2350575e' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E") no-repeat right 11px center;-webkit-appearance:none;appearance:none;font-size:13px;color:var(--ink);font-family:var(--font-sans);cursor:pointer;outline:none}
+.bulk-select:focus{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy)}
+.bulk-apply{height:34px;padding:0 14px;border:1px solid #c9ccd1;border-radius:5px;background:var(--white);color:var(--ink);font-size:13px;font-weight:600;font-family:var(--font-sans);cursor:pointer;transition:background .12s,border-color .12s}
+.bulk-apply:hover{background:var(--bg);border-color:var(--navy);color:var(--navy)}
+.bulk-apply:active{transform:translateY(1px)}
+.bulk-count{font-size:12.5px;color:var(--muted);font-weight:600;margin-left:4px}
+html[data-theme="dark"] .bulk-select,html[data-theme="dark"] .bulk-apply{background:#0f1830;border-color:#2a3550;color:var(--ink)}
+html[data-theme="dark"] .bulk-apply:hover{background:#16213a}
