@@ -2029,3 +2029,41 @@ html[data-theme="dark"] .sc-icon-wrap svg{color:var(--gold)}
 }
 /* Guard against any element forcing horizontal scroll on small screens. */
 @media(max-width:560px){html,body{overflow-x:hidden}img{max-width:100%}}
+
+/* ═══════════════ Dark-mode text-contrast fixes (v3.3) ═══════════════ */
+/* Headings/links that use navy as TEXT on light surfaces — flip to light in
+   dark mode so they don't render dark-on-dark. (Text on gold/navy buttons is
+   intentionally left untouched.) */
+html[data-theme="dark"] .section-title,
+html[data-theme="dark"] .sc-title,
+html[data-theme="dark"] .nc-title,
+html[data-theme="dark"] .team-name,
+html[data-theme="dark"] .mini-body h3,
+html[data-theme="dark"] .side-card h3,
+html[data-theme="dark"] .side-card a,
+html[data-theme="dark"] .article-body,
+html[data-theme="dark"] .article-body h2,
+html[data-theme="dark"] .article-body h3,
+html[data-theme="dark"] .article-body h4,
+html[data-theme="dark"] .article-body .lead,
+html[data-theme="dark"] .sr-title,
+html[data-theme="dark"] .qt-label,
+html[data-theme="dark"] .faq-item summary{color:var(--ink)}
+html[data-theme="dark"] .faq-item[open]{border-color:var(--line)}
+html[data-theme="dark"] .field.is-select label{color:var(--muted-2)}
+html[data-theme="dark"] .mn-acc[aria-expanded="true"]{color:#fff}
+/* Hover states that swap text to navy over a (now-dark) tinted background. */
+html[data-theme="dark"] .qt-tab:hover,
+html[data-theme="dark"] .t-tab:not(.active):hover{color:var(--ink)}
+html[data-theme="dark"] .qt-tab:hover{background:var(--bg-soft)}
+
+/* ── Nav icon buttons: always clearly visible ── */
+/* Over the dark nav / hero (default state). */
+.search-toggle,.theme-toggle{color:rgba(255,255,255,.85)}
+.search-toggle:hover,.theme-toggle:hover{background:rgba(255,255,255,.12);border-radius:8px;color:#fff}
+/* When the bar turns white on scroll (light mode) — and stays readable in dark. */
+#mainNav.scrolled .search-toggle,
+#mainNav.scrolled .theme-toggle{color:var(--ink)}
+#mainNav.scrolled .search-toggle:hover,
+#mainNav.scrolled .theme-toggle:hover{background:rgba(13,38,69,.08)}
+#mainNav.scrolled .hamburger svg{stroke:var(--ink)}
