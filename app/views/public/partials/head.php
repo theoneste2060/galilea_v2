@@ -84,12 +84,30 @@ $isCur = fn(string $u): string => ('/' . trim($u, '/')) === $here ? ' aria-curre
             </button>
             <div class="mega-panel" role="menu" aria-label="<?= esc($top['title']) ?>">
               <div class="mega-cols">
-                <?php foreach ($cols as $colItems): ?>
+                <?php
+                // WebFX-style per-column headings (optional; render only when mapped).
+                $megaHeadings = [
+                    'Services'   => ['Freight & Transport', 'Specialised Services'],
+                    'Solutions'  => ['By Capability', 'Manage & Track'],
+                    'Industries' => ['Sectors We Serve', 'More Sectors'],
+                    'Company'    => ['Company', 'Resources'],
+                ];
+                $ci = 0;
+                foreach ($cols as $colItems): $ci++;
+                  $heading = $megaHeadings[$top['title']][$ci - 1] ?? '';
+                  $headIcon = $colItems[0]['icon'] ?? '';
+                ?>
                 <div class="mega-col">
+                  <?php if ($heading): ?>
+                  <div class="mega-col-head">
+                    <span class="mega-col-title"><?= esc($heading) ?></span>
+                    <?php if ($headIcon): ?><span class="mega-col-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><?= $headIcon ?></svg></span><?php endif; ?>
+                  </div>
+                  <?php endif; ?>
                   <?php foreach ($colItems as $c): ?>
                   <a href="<?= esc($c['url']) ?>" class="mega-link" role="menuitem">
-                    <?php if (!empty($c['icon'])): ?><span class="mega-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><?= $c['icon'] ?></svg></span><?php endif; ?>
-                    <span class="mega-txt"><?= esc($c['title']) ?><?php if (!empty($c['subtitle'])): ?><small><?= esc($c['subtitle']) ?></small><?php endif; ?></span>
+                    <span class="mega-link-title"><?= esc($c['title']) ?></span>
+                    <?php if (!empty($c['subtitle'])): ?><span class="mega-link-sub"><?= esc($c['subtitle']) ?></span><?php endif; ?>
                   </a>
                   <?php endforeach; ?>
                 </div>
