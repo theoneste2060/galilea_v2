@@ -1,3 +1,5 @@
+@font-face{font-family:'Montserrat';font-style:normal;font-weight:400 800;font-display:swap;src:url('/assets/fonts/montserrat-var.woff2') format('woff2')}
+@font-face{font-family:'Playfair Display';font-style:normal;font-weight:400 900;font-display:swap;src:url('/assets/fonts/playfair-var.woff2') format('woff2')}
 :root{
   --navy:#0D2645;--navy-deep:#061528;--gold:#C9A84C;--gold-dark:#b8923e;
   --ink:#1a2332;--muted:#5A6478;--muted-2:#6b7689;--line:var(--line);--bg:#F5F7FA;--bg-soft:#fafbfc;--white:#fff;--surface:#fff;

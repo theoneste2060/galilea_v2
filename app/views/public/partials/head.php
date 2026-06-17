@@ -20,9 +20,7 @@ $isCur = fn(string $u): string => ('/' . trim($u, '/')) === $here ? ' aria-curre
 <title><?= esc($pageTitle) ?></title>
 <?= render_seo_head($meta) ?>
 <link rel="icon" href="/assets/img/logo.jpeg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/montserrat-var.woff2" crossorigin>
 <link rel="stylesheet" href="<?= esc(asset_url('/assets/css/site.css')) ?>">
 <?= analytics_snippet() ?>
 </head>
