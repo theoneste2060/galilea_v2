@@ -66,8 +66,9 @@ function send_security_headers(bool $allowSummernoteCdn = false): void
     // Content Security Policy. Fonts come from Google; the admin rich-text
     // editor (Summernote) and jQuery load from a pinned CDN.
     $script = "'self'";
-    $style  = "'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com";
-    $font   = "'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com";
+    // Fonts are self-hosted; cdnjs remains only for the admin Summernote editor.
+    $style  = "'self' 'unsafe-inline' https://cdnjs.cloudflare.com";
+    $font   = "'self' https://cdnjs.cloudflare.com";
     $img    = "'self' data: blob:";
     $connect = "'self'";
     if ($allowSummernoteCdn) {
@@ -211,15 +212,14 @@ function sanitize_html(string $html): string
     libxml_clear_errors();
 
     $xpath = new DOMXPath($doc);
-    $nodes = iterator_to_array($xpath->query('//*') ?: []);
+    // Only the wrapper's descendants — never the synthetic html/body/__root that
+    // loadHTML adds (unwrapping <html> would destroy the whole tree).
+    $nodes = iterator_to_array($xpath->query('//*[@id="__root"]//*') ?: []);
     foreach ($nodes as $node) {
         if (!$node instanceof DOMElement) {
             continue;
         }
         $tag = strtolower($node->nodeName);
-        if ($tag === 'div' && $node->getAttribute('id') === '__root') {
-            continue;
-        }
         if (!in_array($tag, $allowedTags, true)) {
             // Unwrap disallowed tags: replace with their text content.
             $node->parentNode?->replaceChild(
@@ -245,7 +245,11 @@ function sanitize_html(string $html): string
         }
     }
 
-    $root = $doc->getElementById('__root');
+    // NB: use XPath, not getElementById() — DOMDocument does not register `id`
+    // attributes without a DTD, so getElementById('__root') returns null and
+    // would silently drop all content.
+    $rootNodes = $xpath->query('//*[@id="__root"]');
+    $root = $rootNodes && $rootNodes->length ? $rootNodes->item(0) : null;
     $out  = '';
     if ($root) {
         foreach (iterator_to_array($root->childNodes) as $child) {

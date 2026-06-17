@@ -84,11 +84,15 @@ $rows = Database::all("SELECT * FROM $table" . $where . ' ORDER BY ' . $res['ord
   </div>
 </div>
 
-<form method="post" action="/admin.php?action=bulk_delete&resource=<?= esc($p) ?>" id="bulkForm" onsubmit="return confirm('Delete the selected items? This cannot be undone.');">
+<form method="post" action="/admin.php?action=bulk_delete&resource=<?= esc($p) ?>" id="bulkForm">
   <?= csrf_field() ?>
-  <div class="bulk-bar" id="bulkBar" hidden>
-    <span id="bulkCount">0 selected</span>
-    <button type="submit" class="btn btn-danger btn-sm">Delete selected</button>
+  <div class="tablenav">
+    <select class="bulk-select" id="bulkAction" name="bulk_action" aria-label="Bulk actions">
+      <option value="-1">Bulk actions</option>
+      <option value="delete">Delete</option>
+    </select>
+    <button type="submit" class="bulk-apply" id="bulkApply">Apply</button>
+    <span class="bulk-count" id="bulkCount"></span>
   </div>
 </form>
 <div class="card">

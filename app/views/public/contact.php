@@ -79,6 +79,7 @@ require __DIR__ . '/partials/head.php';
           <p><?= $g('address_kigali') ?>, Nyarugenge 🇷🇼</p>
           <p><a href="<?= esc(tel_href($st['phone_rw'] ?? '')) ?>"><?= $g('phone_rw') ?></a><br><a href="<?= esc(tel_href($st['phone_rw_alt'] ?? '')) ?>"><?= $g('phone_rw_alt') ?></a></p>
           <p><a href="mailto:<?= $g('site_email') ?>"><?= $g('site_email') ?></a></p>
+          <?php if (!empty($st['business_hours'])): ?><p style="color:var(--muted);font-size:13px"><strong>Hours:</strong> <?= $g('business_hours') ?></p><?php endif; ?>
         </div>
         <div class="side-card">
           <h3>China — Guangzhou &amp; Yiwu</h3>

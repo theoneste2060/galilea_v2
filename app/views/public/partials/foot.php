@@ -37,7 +37,7 @@ $footServices = Database::all('SELECT title, slug FROM services WHERE is_active 
       <div class="footer-col"><h5>Legal</h5><ul><li><a href="/privacy">Privacy Policy</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/cookies">Cookie Policy</a></li><li><a href="/admin.php">Admin Sign In</a></li></ul></div>
     </div>
     <div class="footer-bottom">
-      <p>© <?= date('Y') ?> Galilea Global Logistics Ltd. · Kigali, Rwanda</p>
+      <p>© <?= date('Y') ?> <?= esc($st['org_legal_name'] ?? 'Galilea Global Logistics LTD') ?> · Kigali, Rwanda<?= !empty($st['company_reg']) ? ' · ' . esc($st['company_reg']) : '' ?></p>
       <div class="footer-bottom-links"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/cookies">Cookies</a><a href="/contact">Contact</a></div>
     </div>
   </div>
