@@ -6,7 +6,7 @@ DirectoryIndex index.php
   # Never serve application code, the database, or deploy files, even though
   # they now live inside the document root (flat layout). Defense-in-depth
   # alongside the per-directory .htaccess files in app/ and data/.
-  RewriteRule ^(app|data|deploy|tests)(/|$) - [F]
+  RewriteRule ^(app|data|deploy|tests|tools)(/|$) - [F]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.php [L]
