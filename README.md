@@ -32,7 +32,8 @@ content-management portal.
 - **Dark mode** — a persisted, no-flash theme toggle in the nav (site-wide).
 - **Design system:** CSS custom-property tokens (color, spacing, radius,
   shadow, motion, type) underpin both the site and admin styles.
-- Loads fast: lazy-loaded images, deferred JS, font preconnect, browser caching.
+- Loads fast: **self-hosted variable fonts** (no Google Fonts CDN / render
+  blocking), lazy-loaded images, deferred JS, and browser caching.
 - Tracking, quote requests, and newsletter signups are submitted over AJAX to
   JSON endpoints with CSRF protection and anti-spam honeypots.
 

@@ -209,21 +209,31 @@
     });
   });
 
-  // ── BULK SELECT ──
+  // ── BULK SELECT (WordPress-style bulk actions) ──
   (function () {
     var all = document.getElementById('bulkAll');
-    var bar = document.getElementById('bulkBar');
     var count = document.getElementById('bulkCount');
+    var action = document.getElementById('bulkAction');
+    var form = document.getElementById('bulkForm');
     var boxes = Array.prototype.slice.call(document.querySelectorAll('.row-check'));
     if (!boxes.length) return;
+    function selected() { return boxes.filter(function (b) { return b.checked; }); }
     function refresh() {
-      var n = boxes.filter(function (b) { return b.checked; }).length;
-      if (bar) bar.hidden = n === 0;
-      if (count) count.textContent = n + ' selected';
+      var n = selected().length;
+      if (count) count.textContent = n ? n + ' item' + (n === 1 ? '' : 's') + ' selected' : '';
       if (all) all.checked = n === boxes.length && n > 0;
+      if (all) all.indeterminate = n > 0 && n < boxes.length;
     }
     if (all) all.addEventListener('change', function () { boxes.forEach(function (b) { b.checked = all.checked; }); refresh(); });
     boxes.forEach(function (b) { b.addEventListener('change', refresh); });
+    if (form) form.addEventListener('submit', function (e) {
+      var act = action ? action.value : '';
+      var n = selected().length;
+      if (act !== 'delete') { e.preventDefault(); if (typeof toast === 'function') toast('Choose an action from the menu first.', 'err'); return; }
+      if (n === 0) { e.preventDefault(); if (typeof toast === 'function') toast('Select at least one item.', 'err'); return; }
+      if (!confirm('Delete ' + n + ' selected item' + (n === 1 ? '' : 's') + ' permanently? This cannot be undone.')) { e.preventDefault(); }
+    });
+    refresh();
   })();
 
   // ── DRAG TO REORDER ──

@@ -351,12 +351,77 @@ final class Database
 
         if ((int) self::value('SELECT COUNT(*) FROM services') === 0) {
             $services = [
-                ['Sea Cargo & Ocean Freight', 'sea-cargo-ocean-freight', 'FCL and LCL (groupage) shipments on all major trade routes.', 'FCL and LCL (groupage) shipments on all major trade routes. Port-to-port and door-to-door, including dangerous goods and car dealership cargo.', '/assets/img/service-ocean-freight.jpg', 1, 1],
-                ['Air Freight', 'air-freight', 'Expedited global shipping for time-sensitive and high-value cargo.', 'Expedited global shipping for time-sensitive and high-value cargo, utilizing a network of major international air hubs with full visibility.', '/assets/img/service-air-freight.jpg', 1, 2],
-                ['Road & Land Transport', 'road-land-transport', 'Heavy-duty trucking and trailer transport across East Africa.', 'Heavy-duty trucking and trailer transport across East Africa including dangerous goods storage, last-mile delivery, and cross-border road freight.', '/assets/img/service-road-transport.jpg', 0, 3],
-                ['Warehousing & Distribution', 'warehousing-distribution', 'Secure storage in Kigali, Guangzhou and Yiwu warehouses.', 'Secure storage in Kigali, Guangzhou (佛山), and Yiwu warehouses with inventory management, dangerous goods facilities, and cross-docking.', '/assets/img/service-warehousing.jpg', 0, 4],
-                ['Customs Clearance & Declaration', 'customs-clearance', 'Full customs clearance, maritime and dangerous goods declaration.', 'Full customs clearance, maritime declaration, dangerous goods declaration, duty management, and all border documentation — handled by licensed experts.', null, 0, 5],
-                ['China Business Connection', 'china-business-connection', 'Verified suppliers, factory visits, money transfers and sourcing support.', 'We connect you with verified suppliers, handle factory visits, money transfers to suppliers, invitation letters, hotel bookings, and full sourcing support from Guangzhou & Yiwu.', null, 1, 6],
+                ['Sea Cargo & Ocean Freight', 'sea-cargo-ocean-freight',
+                 'FCL and LCL (groupage) shipments on every major trade lane, port-to-port or door-to-door.',
+                 '<p>Ocean freight is the backbone of cost-effective international trade, and it is where Galilea moves the largest share of our clients\' cargo. Whether you are importing a single pallet or a full container load from Guangzhou to Kigali, we book the space, manage the documentation, and keep you informed at every milestone.</p>'
+                 . '<h3>What we handle</h3><ul>'
+                 . '<li><strong>Full Container Load (FCL)</strong> — dedicated 20ft and 40ft containers, including high-cube and reefer units for temperature-controlled goods.</li>'
+                 . '<li><strong>Less-than-Container Load (LCL / groupage)</strong> — pay only for the space you use through our weekly consolidation boxes out of South China.</li>'
+                 . '<li><strong>Door-to-door delivery</strong> — we coordinate the inland leg on both ends so your cargo arrives at your warehouse, not just the port.</li>'
+                 . '<li><strong>Special cargo</strong> — dangerous goods (IMO classes), out-of-gauge project cargo, and car-dealership vehicle shipments.</li>'
+                 . '</ul>'
+                 . '<h3>Why importers choose Galilea</h3><p>Our long-standing relationships with carriers and our own consolidation warehouses in Foshan and Yiwu mean competitive rates and reliable sailing schedules. Every shipment is tracked end-to-end and cleared by our in-house customs team, so there are no surprises at the border. From the Far East to the heart of East Africa, your cargo is in experienced hands.</p>',
+                 '/assets/img/service-ocean-freight.jpg', 1, 1],
+
+                ['Air Freight', 'air-freight',
+                 'Expedited global air shipping for time-sensitive, high-value and perishable cargo.',
+                 '<p>When time is critical, air freight delivers. Galilea moves urgent and high-value shipments through a network of major international hubs, with direct routing between Kigali, Guangzhou and the world\'s key gateways. From a few kilograms of spare parts to multi-tonne consignments, we match the right service level to your deadline and budget.</p>'
+                 . '<h3>Air services we offer</h3><ul>'
+                 . '<li><strong>Express &amp; consolidated air freight</strong> — next-flight-out options for emergencies, and economical consolidations for planned shipments.</li>'
+                 . '<li><strong>Perishables &amp; pharma</strong> — temperature-aware handling for fresh produce, flowers and healthcare products.</li>'
+                 . '<li><strong>High-value &amp; sensitive goods</strong> — electronics, machinery components and documents with secure chain-of-custody.</li>'
+                 . '<li><strong>Charter solutions</strong> — for oversized or exceptionally urgent project cargo.</li>'
+                 . '</ul>'
+                 . '<h3>Speed without the stress</h3><p>Our team pre-clears documentation before the aircraft lands, so your goods move from tarmac to truck with minimum dwell time. You receive proactive status updates and a single point of contact from booking to final delivery — the kind of visibility that lets you make promises to your own customers with confidence.</p>',
+                 '/assets/img/service-air-freight.jpg', 1, 2],
+
+                ['Road & Land Transport', 'road-land-transport',
+                 'Heavy-duty trucking, trailer haulage and cross-border road freight across East Africa.',
+                 '<p>Getting cargo off the ship or plane is only half the journey. Galilea operates and contracts a reliable fleet to move goods overland across Rwanda and the wider East African Community — from the ports of Mombasa and Dar es Salaam to Kigali and beyond.</p>'
+                 . '<h3>Our road network covers</h3><ul>'
+                 . '<li><strong>Port-to-door haulage</strong> — coordinated collection from Mombasa and Dar es Salaam with live transit updates.</li>'
+                 . '<li><strong>Cross-border freight</strong> — Rwanda, Uganda, Kenya, Tanzania, Burundi and the DRC, with all transit and COMESA paperwork managed.</li>'
+                 . '<li><strong>Specialised equipment</strong> — flatbeds and low-loaders for machinery, plus secure transport for dangerous goods.</li>'
+                 . '<li><strong>Last-mile delivery</strong> — final distribution to your warehouse, site or retail network.</li>'
+                 . '</ul>'
+                 . '<h3>Built for African roads</h3><p>Cross-border trucking demands more than a truck — it demands knowledge of border posts, weighbridges and transit bonds. Our drivers and operations team navigate the corridor every week, so your cargo keeps moving while we handle the checkpoints, documentation and the inevitable surprises along the way.</p>',
+                 '/assets/img/service-road-transport.jpg', 0, 3],
+
+                ['Warehousing & Distribution', 'warehousing-distribution',
+                 'Secure, managed storage in Kigali, Guangzhou and Yiwu with inventory and cross-docking.',
+                 '<p>A warehouse should do more than hold boxes — it should give you control. Galilea offers secure, managed storage on both ends of the China–East Africa trade lane, letting you consolidate purchases, hold stock close to your customers and ship only when you are ready.</p>'
+                 . '<h3>Facilities &amp; services</h3><ul>'
+                 . '<li><strong>China consolidation</strong> — receive goods from multiple suppliers at our Foshan (佛山) and Yiwu warehouses, then combine them into one cost-efficient shipment.</li>'
+                 . '<li><strong>Kigali distribution centre</strong> — local storage with pick-and-pack and onward delivery across Rwanda.</li>'
+                 . '<li><strong>Inventory management</strong> — itemised stock records and goods-in/goods-out reporting.</li>'
+                 . '<li><strong>Cross-docking &amp; dangerous-goods storage</strong> — fast transfer and compliant handling of regulated cargo.</li>'
+                 . '</ul>'
+                 . '<h3>One partner, both ends</h3><p>Because we operate storage in China and Rwanda, you deal with a single team and a single set of records across your entire supply chain. Sourcing from twelve different factories? Send them all to our Yiwu warehouse, and we will check, consolidate and ship — turning a logistical headache into one clean delivery.</p>',
+                 '/assets/img/service-warehousing.jpg', 0, 4],
+
+                ['Customs Clearance & Declaration', 'customs-clearance',
+                 'Licensed customs clearance, maritime and dangerous-goods declaration, and duty management.',
+                 '<p>Customs is where shipments stall — unless they are handled by people who do it every day. Galilea\'s licensed clearing agents manage the full declaration process so your cargo clears quickly and correctly, with duties calculated accurately and documentation that stands up to inspection.</p>'
+                 . '<h3>What we take care of</h3><ul>'
+                 . '<li><strong>Import &amp; export clearance</strong> — complete entries lodged with the Rwanda Revenue Authority and regional customs.</li>'
+                 . '<li><strong>Maritime &amp; dangerous-goods declaration</strong> — correct classification and compliant paperwork for regulated cargo.</li>'
+                 . '<li><strong>Duty &amp; tax management</strong> — accurate HS-code classification and valuation to avoid overpayment and penalties.</li>'
+                 . '<li><strong>Permits &amp; certificates</strong> — coordination of inspections, standards certificates and special import permits.</li>'
+                 . '</ul>'
+                 . '<h3>Clear the border, not your schedule</h3><p>A single mis-declared line can hold a container for days and add unexpected cost. Our specialists pre-validate every entry and liaise directly with customs officers, so delays are the exception, not the rule. You get a transparent breakdown of every duty and fee — no hidden charges, no guesswork.</p>',
+                 null, 0, 5],
+
+                ['China Business Connection', 'china-business-connection',
+                 'Verified suppliers, factory visits, supplier payments and end-to-end sourcing support.',
+                 '<p>For many businesses the hardest part of importing from China is everything that happens <em>before</em> the cargo ships — finding a trustworthy supplier, verifying quality, and paying safely. Galilea\'s on-the-ground team in Guangzhou and Yiwu acts as your eyes, ears and hands in China.</p>'
+                 . '<h3>How we support your sourcing</h3><ul>'
+                 . '<li><strong>Supplier sourcing &amp; verification</strong> — we identify, vet and visit factories so you deal with genuine manufacturers, not middlemen.</li>'
+                 . '<li><strong>Factory visits &amp; quality checks</strong> — physical inspection of goods before they are paid for and shipped.</li>'
+                 . '<li><strong>Supplier payments &amp; money transfer</strong> — secure, fast settlement to your suppliers in RMB, integrated with your booking.</li>'
+                 . '<li><strong>Travel &amp; trade support</strong> — invitation letters, hotel bookings and interpreters for buyers visiting China.</li>'
+                 . '</ul>'
+                 . '<h3>Buy from China with confidence</h3><p>We bridge the language, distance and trust gap that trips up so many first-time and growing importers. From the first supplier introduction to the final delivery in Kigali, Galilea manages the whole chain — so you can focus on selling, not chasing factories across a 10,000-kilometre supply line.</p>',
+                 null, 1, 6],
             ];
             $stmt = $pdo->prepare('INSERT INTO services (title, slug, short_description, description, image_path, featured, sort_order) VALUES (?,?,?,?,?,?,?)');
             foreach ($services as $s) {
@@ -378,12 +443,12 @@ final class Database
 
         if ((int) self::value('SELECT COUNT(*) FROM testimonials') === 0) {
             $t = [
-                ['James Kariuki', 'MD — Savanna Trade Supplies, Nairobi', '🇰🇪', 'Galilea cut our port clearance from 3 weeks to under 5 days. Not a single delayed shipment in 18 months.', 5],
-                ['Sophia Nkosi', 'Supply Chain Director — PharmaBridge Africa', '🇿🇦', 'We ship pharmaceuticals — zero tolerance for errors. Galilea\'s compliance team is meticulous. World-class service.', 5],
-                ['Tendai Moyo', 'Founder — Baobab Market, Harare', '🇿🇼', 'Galilea\'s fulfillment solution let us scale from 200 to 2,000 orders a month without missing a beat.', 5],
-                ['Aisha Wambua', 'CEO — Rift Valley Fresh Export Co.', '🇰🇪', 'Fresh produce to Europe and the Middle East — timing is everything. Galilea\'s air freight team delivers on time, every time.', 5],
-                ['Patrick Mugisha', 'Procurement — Kigali Infrastructure Group', '🇷🇼', 'Moving oversized machinery from China to Rwanda — Galilea handled permits, specialized trucking, everything.', 5],
-                ['Clara Osei', 'Operations Manager — West-East Goods, Accra', '🇬🇭', 'The Mombasa SEZ warehouse cut our last-mile costs by 35% in Q1. Direct ERP integration made it seamless.', 5],
+                ['Savanna Trade Supplies', 'Wholesale Distribution · Nairobi, Kenya', '🇰🇪', 'Galilea cut our port-to-warehouse clearance from three weeks to under five days. In eighteen months of weekly imports from China, we have not had a single delayed shipment. They have become a genuine extension of our supply-chain team.', 5],
+                ['PharmaBridge Africa Ltd', 'Pharmaceutical Importer · Johannesburg', '🇿🇦', 'We move temperature-sensitive medicines where there is zero tolerance for error. Galilea\'s compliance and documentation are meticulous, and their air-freight handling has kept our cold chain intact on every consignment.', 5],
+                ['Baobab Market', 'E-commerce Retail · Harare, Zimbabwe', '🇿🇼', 'Galilea\'s consolidation and fulfilment let us scale from 200 to over 2,000 orders a month without missing a beat. Sourcing, warehousing and last-mile delivery all run through one partner — it transformed how we operate.', 5],
+                ['Rift Valley Fresh Exporters', 'Perishables Export · Nakuru, Kenya', '🇰🇪', 'For fresh produce bound for Europe and the Middle East, timing is everything. Galilea\'s air-freight team consistently delivers on schedule, and their pre-clearance process means our cargo never sits waiting at the airport.', 5],
+                ['Kigali Infrastructure Group', 'Construction & Machinery · Kigali', '🇷🇼', 'We needed oversized machinery moved from China to a project site in Rwanda. Galilea handled the permits, the specialised trucking and the cross-border paperwork end to end. Everything arrived intact and on time.', 5],
+                ['West-East Goods Ltd', 'Consumer Goods Import · Accra, Ghana', '🇬🇭', 'Galilea\'s warehousing and distribution cut our last-mile costs by 35% in a single quarter. Their reporting gives us full visibility of stock, and the team is responsive whenever priorities shift.', 5],
             ];
             $stmt = $pdo->prepare('INSERT INTO testimonials (client_name, company, country_flag, quote, rating) VALUES (?,?,?,?,?)');
             foreach ($t as $row) {
@@ -432,11 +497,70 @@ final class Database
 
         if ((int) self::value('SELECT COUNT(*) FROM pages') === 0) {
             $pages = [
-                ['About Galilea', 'about', '<p>Galilea Global Logistics Ltd. is a Kigali-headquartered freight forwarder connecting East Africa and China through sea, air and land freight, customs clearance, warehousing and supplier sourcing.</p><p>With offices in Kigali, Guangzhou and Yiwu, we deliver end-to-end supply chain solutions with full transparency and real-time tracking.</p>', 'Learn about Galilea Global Logistics — your trusted freight and supply-chain partner across East Africa and China.'],
-                ['Careers', 'careers', '<p>Join a fast-growing logistics team operating across Rwanda and China. We are always looking for talented operations, sales and customs specialists.</p><p>Send your CV to <a href="mailto:info@galileagloballogistics.rw">info@galileagloballogistics.rw</a>.</p>', 'Careers at Galilea Global Logistics.'],
-                ['Privacy Policy', 'privacy', '<p>We respect your privacy. This policy explains what data we collect through inquiries and newsletter subscriptions, how it is used, and your rights.</p>', 'Galilea Global Logistics privacy policy.'],
-                ['Terms of Service', 'terms', '<p>These terms govern your use of the Galilea Global Logistics website and services.</p>', 'Galilea Global Logistics terms of service.'],
-                ['Cookie Policy', 'cookies', '<p>We use a minimal set of cookies required for security (session and CSRF) and, with your consent, analytics.</p>', 'Galilea Global Logistics cookie policy.'],
+                ['About Galilea', 'about',
+                 '<p>Galilea Global Logistics Ltd. is a Kigali-headquartered freight forwarder built to connect East Africa and China. We move our clients\' cargo by sea, air and land, and back it with customs clearance, warehousing and on-the-ground supplier sourcing — a complete supply chain under one roof.</p>'
+                 . '<h2>Who we are</h2><p>Founded to solve the real frictions of trading between Africa and Asia, Galilea pairs local knowledge of East African corridors and customs with a permanent presence in the manufacturing heartlands of South China. From our offices in Kigali, Guangzhou and Yiwu, we manage shipments end to end so our clients can buy, sell and grow with confidence.</p>'
+                 . '<h2>What we do</h2><ul>'
+                 . '<li>Sea cargo &amp; ocean freight (FCL and LCL groupage)</li>'
+                 . '<li>Air freight for urgent, high-value and perishable goods</li>'
+                 . '<li>Road &amp; cross-border land transport across the EAC</li>'
+                 . '<li>Warehousing, consolidation and distribution in China and Rwanda</li>'
+                 . '<li>Licensed customs clearance and declaration</li>'
+                 . '<li>China sourcing, supplier verification and payments</li>'
+                 . '</ul>'
+                 . '<h2>Our promise</h2><p>Trusted trade, global reach. Every shipment is tracked, every duty is transparent, and every client has a named point of contact. We treat your cargo and your deadlines as our own.</p>',
+                 'Learn about Galilea Global Logistics — your trusted freight and supply-chain partner across East Africa and China.'],
+
+                ['Careers', 'careers',
+                 '<p>Galilea is a fast-growing logistics company operating across Rwanda and China. Our people are the reason cargo keeps moving and clients keep coming back — and we are always looking for talented, dependable team members to grow with us.</p>'
+                 . '<h2>Where we hire</h2><ul>'
+                 . '<li><strong>Operations &amp; freight coordination</strong> — Kigali</li>'
+                 . '<li><strong>Customs &amp; clearance specialists</strong> — Kigali</li>'
+                 . '<li><strong>Sourcing &amp; warehouse</strong> — Guangzhou &amp; Yiwu, China</li>'
+                 . '<li><strong>Sales &amp; client success</strong> — Kigali</li>'
+                 . '</ul>'
+                 . '<h2>Why Galilea</h2><p>You will work on real international trade, learn both the African and Chinese sides of the supply chain, and have room to take ownership early. We value reliability, clear communication and a problem-solving mindset over formal titles.</p>'
+                 . '<h2>How to apply</h2><p>Send your CV and a short note about the role that interests you to <a href="mailto:info@galileagloballogistics.rw">info@galileagloballogistics.rw</a>. We review applications on a rolling basis and respond to every candidate.</p>',
+                 'Careers at Galilea Global Logistics — operations, customs, sourcing and sales roles across Rwanda and China.'],
+
+                ['Privacy Policy', 'privacy',
+                 '<p><em>This is a working draft for review. Please have it checked against your jurisdiction\'s data-protection law (including Rwanda\'s Law No. 058/2021 on the protection of personal data and privacy) before publishing.</em></p>'
+                 . '<p>Galilea Global Logistics Ltd. ("Galilea", "we", "us") respects your privacy and is committed to protecting the personal data you share with us. This policy explains what we collect, why, how we use it, and the rights you have.</p>'
+                 . '<h2>1. Information we collect</h2><ul>'
+                 . '<li><strong>Information you give us</strong> — your name, company, email, phone number and message when you submit a quote request, contact form or newsletter sign-up.</li>'
+                 . '<li><strong>Shipment information</strong> — details necessary to provide our services, such as reference numbers, origin and destination.</li>'
+                 . '<li><strong>Technical data</strong> — basic, non-identifying information collected by our website and, with your consent, analytics cookies.</li>'
+                 . '</ul>'
+                 . '<h2>2. How we use your information</h2><p>We use your data to respond to enquiries, prepare quotations, provide and improve our logistics services, manage shipments, and — where you have opted in — send occasional updates. We do not sell your personal data.</p>'
+                 . '<h2>3. Sharing</h2><p>We share information only as needed to deliver your shipment — for example with carriers, customs authorities and our offices in China — and with service providers bound by confidentiality. We may also disclose data where required by law.</p>'
+                 . '<h2>4. Retention</h2><p>We keep personal data only for as long as necessary to fulfil the purposes described here and to meet legal and accounting obligations.</p>'
+                 . '<h2>5. Your rights</h2><p>You may request access to, correction of, or deletion of your personal data, and you may withdraw consent for marketing at any time. To exercise these rights, contact us at <a href="mailto:info@galileagloballogistics.rw">info@galileagloballogistics.rw</a>.</p>'
+                 . '<h2>6. Contact</h2><p>Questions about this policy can be sent to <a href="mailto:info@galileagloballogistics.rw">info@galileagloballogistics.rw</a> or to our head office in Nyarugenge, Kigali.</p>',
+                 'How Galilea Global Logistics collects, uses and protects your personal data.'],
+
+                ['Terms of Service', 'terms',
+                 '<p><em>This is a working draft for review. Please have it reviewed by a qualified legal advisor before publishing.</em></p>'
+                 . '<p>These Terms of Service ("Terms") govern your use of the Galilea Global Logistics website and the services we provide. By using our website or engaging our services, you agree to these Terms.</p>'
+                 . '<h2>1. Services</h2><p>Galilea provides freight forwarding, customs clearance, warehousing, transport and related sourcing services. The specific scope, pricing and timelines for any shipment are set out in the quotation or agreement applicable to that booking.</p>'
+                 . '<h2>2. Quotations &amp; bookings</h2><p>Quotations are based on the information you provide and are valid for the period stated. Rates may change if cargo details, weights, dimensions, routing or third-party charges (such as carrier surcharges or duties) differ from those quoted.</p>'
+                 . '<h2>3. Client responsibilities</h2><p>You are responsible for providing accurate cargo descriptions and documentation, ensuring goods are legal to import or export, and paying duties, taxes and charges that apply to your shipment.</p>'
+                 . '<h2>4. Liability</h2><p>Our liability is limited to that permitted under applicable freight-forwarding conventions and the terms of the relevant carrier. We are not liable for delays or losses caused by events beyond our reasonable control, including customs inspections, weather, or carrier disruptions.</p>'
+                 . '<h2>5. Payment</h2><p>Invoices are payable within the terms stated. We reserve the right to hold cargo against unpaid charges where permitted by law.</p>'
+                 . '<h2>6. Governing law</h2><p>These Terms are governed by the laws of the Republic of Rwanda. Any dispute will be subject to the competent courts of Rwanda unless otherwise agreed in writing.</p>'
+                 . '<h2>7. Contact</h2><p>For questions about these Terms, contact <a href="mailto:info@galileagloballogistics.rw">info@galileagloballogistics.rw</a>.</p>',
+                 'The terms governing the use of Galilea Global Logistics services and website.'],
+
+                ['Cookie Policy', 'cookies',
+                 '<p><em>This is a working draft for review. Adjust it to match the cookies actually in use before publishing.</em></p>'
+                 . '<p>This Cookie Policy explains how Galilea Global Logistics uses cookies and similar technologies on our website.</p>'
+                 . '<h2>1. What cookies are</h2><p>Cookies are small text files stored on your device when you visit a website. They help the site work properly and, where you allow it, help us understand how the site is used.</p>'
+                 . '<h2>2. Cookies we use</h2><ul>'
+                 . '<li><strong>Strictly necessary</strong> — a session cookie and a security (CSRF) token that keep the site functioning and protect form submissions. These cannot be switched off.</li>'
+                 . '<li><strong>Analytics (optional)</strong> — if you accept, we use privacy-respecting analytics to measure traffic and improve the site. These are only set after you consent via our cookie banner.</li>'
+                 . '</ul>'
+                 . '<h2>3. Managing cookies</h2><p>You can accept or decline optional cookies using the banner shown on your first visit, and you can clear cookies at any time through your browser settings. Declining optional cookies will not affect the core functionality of the site.</p>'
+                 . '<h2>4. Contact</h2><p>For questions about this policy, contact <a href="mailto:info@galileagloballogistics.rw">info@galileagloballogistics.rw</a>.</p>',
+                 'How Galilea Global Logistics uses cookies and how you can manage them.'],
             ];
             $stmt = $pdo->prepare('INSERT INTO pages (title, slug, body, meta_description) VALUES (?,?,?,?)');
             foreach ($pages as $pg) {
