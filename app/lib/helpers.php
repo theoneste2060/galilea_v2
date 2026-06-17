@@ -66,8 +66,9 @@ function send_security_headers(bool $allowSummernoteCdn = false): void
     // Content Security Policy. Fonts come from Google; the admin rich-text
     // editor (Summernote) and jQuery load from a pinned CDN.
     $script = "'self'";
-    $style  = "'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com";
-    $font   = "'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com";
+    // Fonts are self-hosted; cdnjs remains only for the admin Summernote editor.
+    $style  = "'self' 'unsafe-inline' https://cdnjs.cloudflare.com";
+    $font   = "'self' https://cdnjs.cloudflare.com";
     $img    = "'self' data: blob:";
     $connect = "'self'";
     if ($allowSummernoteCdn) {

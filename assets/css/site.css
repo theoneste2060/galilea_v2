@@ -2069,3 +2069,22 @@ html[data-theme="dark"] .qt-tab:hover{background:var(--bg-soft)}
 #mainNav.scrolled .search-toggle:hover,
 #mainNav.scrolled .theme-toggle:hover{background:rgba(13,38,69,.08)}
 #mainNav.scrolled .hamburger svg{stroke:var(--ink)}
+
+/* ═══ Mega-menu polish (agency / WebFX-style) ═══ */
+.nav-item.has-mega .mega-panel{padding:22px;min-width:680px;border-radius:16px;overflow:hidden}
+/* Gold accent rule along the top of the panel. */
+.nav-item.has-mega .mega-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-dark))}
+.mega-cols{gap:14px}
+.mega-link{position:relative;padding:11px 13px;border-radius:10px;transition:background .14s,transform .14s}
+.mega-link::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--gold);transform:scaleY(0);transform-origin:center;transition:transform .16s var(--ease)}
+.mega-link:hover{transform:translateX(2px)}
+.mega-link:hover::before{transform:scaleY(1)}
+.mega-ico{width:36px;height:36px;border-radius:9px}
+.mega-txt{font-size:13.5px}
+.mega-promo{min-height:auto;padding:20px}
+.mega-promo-title{font-size:18px}
+/* Dark-mode legibility for the mega panel. */
+html[data-theme="dark"] .mega-link:hover{background:var(--bg-soft)}
+html[data-theme="dark"] .mega-ico{background:rgba(201,168,76,.12)}
+html[data-theme="dark"] .mega-txt{color:var(--ink)}
+html[data-theme="dark"] .mega-txt small{color:var(--muted)}
