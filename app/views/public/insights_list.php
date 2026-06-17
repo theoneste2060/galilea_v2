@@ -1,6 +1,6 @@
 <?php
 /** @var array $posts @var int $page @var int $pages */
-$meta = ['title' => 'Insights & News — Galilea Global Logistics', 'description' => 'Shipping updates, China sourcing tips and East Africa trade news from Galilea Global Logistics.',
+$meta = ['title' => 'Insights & News | Galilea Global Logistics', 'description' => 'Shipping updates, China sourcing tips and East Africa trade news from Galilea Global Logistics.',
     'breadcrumbs' => [['name' => 'Home', 'url' => '/'], ['name' => 'Insights', 'url' => '/insights']]];
 require __DIR__ . '/partials/head.php';
 ?>

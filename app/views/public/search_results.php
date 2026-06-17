@@ -1,6 +1,6 @@
 <?php
 /** @var string $q @var array $results */
-$meta = ['title' => ($q !== '' ? "Search: $q" : 'Search') . ' — Galilea Global Logistics', 'description' => 'Search Galilea Global Logistics services and insights.', 'robots' => 'noindex, follow',
+$meta = ['title' => ($q !== '' ? "Search: $q" : 'Search') . ' | Galilea Global Logistics', 'description' => 'Search Galilea Global Logistics services and insights.', 'robots' => 'noindex, follow',
     'breadcrumbs' => [['name' => 'Home', 'url' => '/'], ['name' => 'Search', 'url' => '/search']]];
 require __DIR__ . '/partials/head.php';
 ?>

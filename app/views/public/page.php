@@ -1,6 +1,6 @@
 <?php
 /** @var array $cms */
-$meta = ['title' => $cms['title'] . ' — Galilea Global Logistics', 'description' => $cms['meta_description'] ?: setting('seo_description'),
+$meta = ['title' => $cms['title'] . ' | Galilea Global Logistics', 'description' => $cms['meta_description'] ?: setting('seo_description'),
     'breadcrumbs' => [['name' => 'Home', 'url' => '/'], ['name' => $cms['title'], 'url' => '/' . $cms['slug']]]];
 require __DIR__ . '/partials/head.php';
 ?>

@@ -62,7 +62,7 @@ function nav_item(string $key, array $item, string $current): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= esc($pageTitle) ?> — Galilea Admin</title>
+<title><?= esc($pageTitle) ?> | Galilea Admin</title>
 <link rel="icon" href="/assets/img/logo.jpeg">
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/montserrat-var.woff2" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-lite.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">

@@ -104,6 +104,39 @@ require_admin();
 
 $action = input('action');
 
+/* ─────────────────────  Exports & backups (GET)  ─────────────────────── */
+
+if (in_array($action, ['backup_db', 'export_inquiries', 'export_subscribers'], true)) {
+    require_role('superadmin');
+    if ($action === 'backup_db') {
+        $tmp = sys_get_temp_dir() . '/galilea-backup-' . date('Ymd-His') . '.sqlite';
+        Database::pdo()->exec("VACUUM INTO '" . str_replace("'", "''", $tmp) . "'");
+        log_activity('backup', 'Downloaded database backup');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="galilea-backup-' . date('Ymd-His') . '.sqlite"');
+        header('Content-Length: ' . filesize($tmp));
+        readfile($tmp);
+        @unlink($tmp);
+        exit;
+    }
+    $map = [
+        'export_inquiries' => ['inquiries', 'SELECT id,full_name,email,phone,company,service_interest,status,created_at FROM inquiries ORDER BY created_at DESC'],
+        'export_subscribers' => ['subscribers', 'SELECT id,email,source,is_active,created_at FROM newsletter_subscribers ORDER BY created_at DESC'],
+    ];
+    [$label, $sql] = $map[$action];
+    log_activity('export', $label);
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="galilea-' . $label . '-' . date('Ymd') . '.csv"');
+    $out = fopen('php://output', 'w');
+    $rows = Database::all($sql);
+    if ($rows) {
+        fputcsv($out, array_keys($rows[0]));
+        foreach ($rows as $r) fputcsv($out, $r);
+    }
+    fclose($out);
+    exit;
+}
+
 /* ─────────────────────────────  Actions  ─────────────────────────────── */
 
 if ($action && is_post()) {
@@ -157,9 +190,33 @@ if ($action && is_post()) {
 
     if ($action === 'save_settings') {
         require_role('superadmin');
+
+        // Handle email logo upload.
+        if (!empty($_FILES['email_logo_file']['tmp_name'])) {
+            try {
+                $url = handle_image_upload('email_logo_file', $config);
+                if ($url) {
+                    $_POST['setting']['email_logo'] = $url;
+                }
+            } catch (RuntimeException $e) {
+                flash($e->getMessage(), 'error');
+            }
+        }
+        // Remove email logo.
+        if (!empty($_POST['setting']['email_logo_remove'])) {
+            $_POST['setting']['email_logo'] = '';
+        }
+
+        $postGroups = $_POST['setting_group'] ?? [];
         foreach (($_POST['setting'] ?? []) as $k => $v) {
-            Database::run("UPDATE site_settings SET value = ?, updated_at = datetime('now') WHERE key = ?",
-                [trim((string) $v), (string) $k]);
+            $key = (string) $k;
+            $val = trim((string) $v);
+            $group = $postGroups[$key] ?? 'general';
+            // Upsert – handles both existing and new keys.
+            Database::run(
+                "INSERT INTO site_settings (key, label, value, group_name, updated_at) VALUES (?, '', ?, ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value = ?, updated_at = datetime('now')",
+                [$key, $val, $group, $val]
+            );
         }
         log_activity('update', 'Site settings');
         flash('Settings saved.');
@@ -180,7 +237,12 @@ if ($action && is_post()) {
             log_activity('email_test', 'Test email sent to ' . $to);
             flash('Test email sent to ' . $to . '. Check the inbox (and spam).');
         } else {
-            flash('Test email failed: ' . $mailer->lastError(), 'error');
+            $log = $mailer->log();
+            $detail = $mailer->lastError();
+            if ($log) {
+                $detail .= ' · SMTP log: ' . implode(' | ', array_slice($log, -6));
+            }
+            flash('Test email failed: ' . $detail, 'error');
         }
         redirect('/admin.php?p=settings');
     }
@@ -202,6 +264,32 @@ if ($action && is_post()) {
         require_access('subscribers');
         Database::run('DELETE FROM newsletter_subscribers WHERE id = ?', [(int) input('id')]);
         flash('Subscriber removed.');
+        redirect('/admin.php?p=subscribers');
+    }
+
+    if ($action === 'bulk_delete_inquiries') {
+        require_access('inquiries');
+        $ids = array_map('intval', (array) ($_POST['ids'] ?? []));
+        $ids = array_filter($ids);
+        if ($ids) {
+            $in = implode(',', array_fill(0, count($ids), '?'));
+            Database::run("DELETE FROM inquiries WHERE id IN ($in)", array_values($ids));
+            log_activity('bulk_delete', 'Inquiries × ' . count($ids));
+            flash(count($ids) . ' inquiry(s) deleted.');
+        }
+        redirect('/admin.php?p=inquiries');
+    }
+
+    if ($action === 'bulk_delete_subscribers') {
+        require_access('subscribers');
+        $ids = array_map('intval', (array) ($_POST['ids'] ?? []));
+        $ids = array_filter($ids);
+        if ($ids) {
+            $in = implode(',', array_fill(0, count($ids), '?'));
+            Database::run("DELETE FROM newsletter_subscribers WHERE id IN ($in)", array_values($ids));
+            log_activity('bulk_delete', 'Subscribers × ' . count($ids));
+            flash(count($ids) . ' subscriber(s) removed.');
+        }
         redirect('/admin.php?p=subscribers');
     }
 
@@ -279,39 +367,6 @@ if ($action && is_post()) {
             flash('Password incorrect — 2FA not changed.', 'error');
         }
         redirect('/admin.php?p=account');
-    }
-
-    /* ── Backups & exports (superadmin) ── */
-    if (in_array($action, ['backup_db', 'export_inquiries', 'export_subscribers'], true)) {
-        require_role('superadmin');
-        if ($action === 'backup_db') {
-            $tmp = sys_get_temp_dir() . '/galilea-backup-' . date('Ymd-His') . '.sqlite';
-            // Server-generated path (no user input); VACUUM INTO needs a literal.
-            Database::pdo()->exec("VACUUM INTO '" . str_replace("'", "''", $tmp) . "'");
-            log_activity('backup', 'Downloaded database backup');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="galilea-backup-' . date('Ymd-His') . '.sqlite"');
-            header('Content-Length: ' . filesize($tmp));
-            readfile($tmp);
-            @unlink($tmp);
-            exit;
-        }
-        $map = [
-            'export_inquiries' => ['inquiries', 'SELECT id,full_name,email,phone,company,service_interest,status,created_at FROM inquiries ORDER BY created_at DESC'],
-            'export_subscribers' => ['subscribers', 'SELECT id,email,source,is_active,created_at FROM newsletter_subscribers ORDER BY created_at DESC'],
-        ];
-        [$label, $sql] = $map[$action];
-        log_activity('export', $label);
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename="galilea-' . $label . '-' . date('Ymd') . '.csv"');
-        $out = fopen('php://output', 'w');
-        $rows = Database::all($sql);
-        if ($rows) {
-            fputcsv($out, array_keys($rows[0]));
-            foreach ($rows as $r) fputcsv($out, $r);
-        }
-        fclose($out);
-        exit;
     }
 
     /* ── User management (superadmin) ── */

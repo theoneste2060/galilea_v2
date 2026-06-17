@@ -5,7 +5,7 @@ $g = fn(string $k, string $d = '') => esc($st[$k] ?? $d);
 $svcIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>';
 $testChunks = array_chunk($testimonials, 3);
 $faqs = $faqs ?? [];
-$meta = ['title' => setting('seo_title', 'Galilea Global Logistics — Trusted Trade. Global Reach.'), 'description' => setting('seo_description')];
+$meta = ['title' => setting('seo_title', 'Galilea Global Logistics | Trusted Trade. Global Reach.'), 'description' => setting('seo_description')];
 // FAQPage structured data (rich results + Generative Engine Optimization).
 if ($faqs) {
     $meta['schema'][] = [
@@ -36,7 +36,7 @@ require __DIR__ . '/partials/head.php';
         <?php $h0 = $hero[0] ?? ['eyebrow' => $st['hero_eyebrow'] ?? '', 'title' => 'Your cargo moves. Your business grows.', 'body' => '']; ?>
         <p class="hero-eyebrow"><?= esc($h0['eyebrow'] ?: ($st['hero_eyebrow'] ?? '')) ?></p>
         <h1 class="hero-title"><?= esc($h0['title']) ?></h1>
-        <p class="hero-body"><?= esc($h0['body']) ?></p>
+        <p class="hero-body"><?= esc($h0['body'] ?: 'From sea freight across the Indian Ocean to road transport through the heart of Africa — we move your cargo with precision, transparency and a single point of contact every step of the way.') ?></p>
         <div class="hero-actions">
           <a href="/track" class="btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>Track a Shipment</a>
           <a href="/services" class="btn-outline-white">Explore Services<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
@@ -162,14 +162,14 @@ require __DIR__ . '/partials/head.php';
       <div class="why-left reveal">
         <p class="section-label">The Galilea Difference</p>
         <h2 class="section-title">Why businesses trust us with their supply chains</h2>
-        <p class="section-body">From Kigali to Guangzhou, Yiwu to your door — we handle sea, air, land, customs, sourcing, and financial support so your business keeps moving.</p>
+        <p class="section-body">From Kigali to Guangzhou, Yiwu to your door — we handle sea, air, land, customs, sourcing, and financial support under one roof. Every shipment is managed by a dedicated operations team that knows your cargo, your timeline and your requirements. You never need to chase multiple vendors across time zones or wonder who is responsible when something goes wrong — because one partner owns the entire chain.</p>
         <div class="promise-quote"><p>"Your Trusted Logistics Partner Worldwide — Connecting the World, Delivering Excellence."</p><cite>— Galilea Global Logistics</cite></div>
       </div>
       <div class="why-grid reveal">
-        <div class="why-card"><div class="wc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div><div class="wc-title">Global Network</div><div class="wc-body">Access to every major trade hub via sea, air, and land — 130+ countries, 48+ port partners.</div></div>
-        <div class="why-card"><div class="wc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="wc-title">Full Transparency</div><div class="wc-body">Real-time tracking and clear communication at every milestone, with zero surprises.</div></div>
-        <div class="why-card"><div class="wc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="wc-title">Full-Service Logistics</div><div class="wc-body">Sea, air, land, customs, warehousing, sourcing and financial support — one partner, every step.</div></div>
-        <div class="why-card"><div class="wc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div class="wc-title">China–Africa Corridor</div><div class="wc-body">Offices in Kigali, Guangzhou &amp; Yiwu — direct access to Chinese factories and suppliers.</div></div>
+        <div class="why-card"><div class="wc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div><div class="wc-title">Global Network</div><div class="wc-body">Access to every major trade hub via sea, air, and land — serving 130+ countries through 48+ port partners and major international air gateways, with a single point of contact for your entire journey.</div></div>
+        <div class="why-card"><div class="wc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="wc-title">Full Transparency</div><div class="wc-body">Real-time tracking, milestone alerts and proactive status updates at every stage. Your operations contact knows your cargo by name and keeps you informed with clear, honest communication — no surprises, no excuses.</div></div>
+        <div class="why-card"><div class="wc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="wc-title">Full-Service Logistics</div><div class="wc-body">Sea freight, air cargo, road transport, customs clearance, warehousing, China sourcing and supplier payments — every link in the chain managed by one team so you never juggle multiple vendors or chase updates across time zones.</div></div>
+        <div class="why-card"><div class="wc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div class="wc-title">China–Africa Corridor</div><div class="wc-body">Physical offices in Kigali, Guangzhou and Yiwu — our own team on the ground at both ends of the trade lane. We inspect factories, consolidate shipments and manage compliance so you import with confidence, not guesswork.</div></div>
       </div>
     </div>
   </div>

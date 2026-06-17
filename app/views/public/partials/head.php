@@ -75,6 +75,7 @@ $isCur = fn(string $u): string => ('/' . trim($u, '/')) === $here ? ' aria-curre
       </a>
 
       <ul class="nav-links" role="menubar">
+        <li class="nav-item" role="none"><a href="/" class="nav-link-btn<?= $here === '/' ? ' is-current' : '' ?>"<?= $here === '/' ? ' aria-current="page"' : '' ?> role="menuitem">Home</a></li>
         <?php foreach ($menu as $top): $hasKids = !empty($top['children']); $cols = []; ?>
           <?php if ($hasKids): foreach ($top['children'] as $c) { $cols[(int) $c['column_group']][] = $c; } ?>
           <li class="nav-item has-mega" role="none">
@@ -88,9 +89,7 @@ $isCur = fn(string $u): string => ('/' . trim($u, '/')) === $here ? ' aria-curre
                 // WebFX-style per-column headings (optional; render only when mapped).
                 $megaHeadings = [
                     'Services'   => ['Freight & Transport', 'Specialised Services'],
-                    'Solutions'  => ['By Capability', 'Manage & Track'],
-                    'Industries' => ['Sectors We Serve', 'More Sectors'],
-                    'Company'    => ['Company', 'Resources'],
+                    'Company'    => ['Solutions', 'Industries', 'Company'],
                 ];
                 $ci = 0;
                 foreach ($cols as $colItems): $ci++;
@@ -152,6 +151,7 @@ $isCur = fn(string $u): string => ('/' . trim($u, '/')) === $here ? ' aria-curre
     <button class="mn-close" id="mnClose" aria-label="Close menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
   </div>
   <div class="mn-body">
+    <a href="/" class="mn-link">Home</a>
     <?php foreach ($menu as $top): ?>
       <?php if (!empty($top['children'])): ?>
       <div class="mn-group">

@@ -1,7 +1,7 @@
 <?php
 /** @var array $post @var array $more */
 $meta = [
-    'title' => $post['title'] . ' — Galilea Insights',
+    'title' => $post['title'] . ' | Galilea Insights',
     'description' => $post['excerpt'],
     'type' => 'article',
     'image' => $post['image_path'] ?: '/assets/img/logo.jpeg',

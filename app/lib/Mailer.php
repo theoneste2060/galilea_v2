@@ -61,7 +61,50 @@ class Mailer
         ];
     }
 
-    private function headers(string $toEmail, string $subject, array $cfg, ?string $replyTo): array
+    /** Path to the email logo file on disk, or empty if none configured. */
+    private function logoFile(): string
+    {
+        $p = setting('email_logo', '');
+        if ($p === '') return '';
+        $f = config('upload_dir') . '/' . basename($p);
+        return is_file($f) ? $f : '';
+    }
+
+    /** Build the final MIME body (plain HTML or multipart/related with inline logo). */
+    private function buildBody(string $toEmail, string $subject, string $html, array $cfg, ?string $replyTo): string
+    {
+        $logo = $this->logoFile();
+        if ($logo === '') {
+            // Simple single-part HTML.
+            $h = $this->headers($toEmail, $subject, $cfg, $replyTo, false);
+            return implode("\r\n", $h) . "\r\n\r\n" . chunk_split(base64_encode($html));
+        }
+
+        // Multipart/related with inline logo.
+        $boundary = '----=_Part_' . bin2hex(random_bytes(8));
+        $mime = mime_content_type($logo) ?: 'image/png';
+        $b64 = chunk_split(base64_encode(file_get_contents($logo)));
+
+        $h = $this->headers($toEmail, $subject, $cfg, $replyTo, true, $boundary);
+        $parts = [
+            '--' . $boundary,
+            'Content-Type: text/html; charset=UTF-8',
+            'Content-Transfer-Encoding: base64',
+            '',
+            chunk_split(base64_encode($html)),
+            '--' . $boundary,
+            'Content-Type: ' . $mime,
+            'Content-Transfer-Encoding: base64',
+            'Content-ID: <logo@galilea>',
+            'Content-Disposition: inline',
+            '',
+            $b64,
+            '--' . $boundary . '--',
+        ];
+        return implode("\r\n", $h) . "\r\n\r\n" . implode("\r\n", $parts);
+    }
+
+    private function headers(string $toEmail, string $subject, array $cfg, ?string $replyTo, bool $multipart = false, string $boundary = ''): array
     {
         $from = '=?UTF-8?B?' . base64_encode($cfg['from_name']) . '?= <' . $cfg['from_email'] . '>';
         $h = [
@@ -70,9 +113,13 @@ class Mailer
             'To: ' . $toEmail,
             'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=',
             'MIME-Version: 1.0',
-            'Content-Type: text/html; charset=UTF-8',
-            'Content-Transfer-Encoding: base64',
         ];
+        if ($multipart) {
+            $h[] = 'Content-Type: multipart/related; boundary="' . $boundary . '"; type="text/html"';
+        } else {
+            $h[] = 'Content-Type: text/html; charset=UTF-8';
+            $h[] = 'Content-Transfer-Encoding: base64';
+        }
         if ($replyTo && filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
             $h[] = 'Reply-To: ' . $replyTo;
         }
@@ -81,10 +128,19 @@ class Mailer
 
     private function sendViaMail(string $to, string $subject, string $html, array $cfg, ?string $replyTo): bool
     {
-        $headers = $this->headers($to, $subject, $cfg, $replyTo);
-        // mail() takes the Subject/To separately, so drop them from the header list.
-        $headers = array_values(array_filter($headers, fn($l) => !str_starts_with($l, 'To: ') && !str_starts_with($l, 'Subject: ')));
-        $ok = @mail($to, $subject, chunk_split(base64_encode($html)), implode("\r\n", $headers));
+        $body = $this->buildBody($to, $subject, $html, $cfg, $replyTo);
+        // Extract the raw body (everything after the double CRLF that ends headers).
+        $parts = explode("\r\n\r\n", $body, 2);
+        if (!isset($parts[1])) {
+            $this->lastError = 'Failed to build message body.';
+            return false;
+        }
+        $headers = $parts[0];
+        $bodyRaw = $parts[1];
+        // Remove To: and Subject: from headers for mail().
+        $hLines = explode("\r\n", $headers);
+        $hLines = array_values(array_filter($hLines, fn($l) => !str_starts_with($l, 'To: ') && !str_starts_with($l, 'Subject: ')));
+        $ok = @mail($to, $subject, $bodyRaw, implode("\r\n", $hLines));
         if (!$ok) {
             $this->lastError = 'PHP mail() failed (no SMTP host set and the local mailer is unavailable).';
         }
@@ -95,13 +151,17 @@ class Mailer
     {
         $transport = $cfg['secure'] === 'ssl' ? 'ssl://' : '';
         $errno = 0; $errstr = '';
-        $ctx = stream_context_create(['ssl' => ['verify_peer' => true, 'verify_peer_name' => true]]);
-        $fp = @stream_socket_client($transport . $cfg['host'] . ':' . $cfg['port'], $errno, $errstr, 10, STREAM_CLIENT_CONNECT, $ctx);
+        $sslOpts = ['verify_peer' => true, 'verify_peer_name' => true];
+        foreach (['/etc/ssl/certs/ca-certificates.crt', '/etc/pki/tls/certs/ca-bundle.crt', '/etc/ssl/ca-bundle.pem'] as $p) {
+            if (is_file($p)) { $sslOpts['cafile'] = $p; break; }
+        }
+        $ctx = stream_context_create(['ssl' => $sslOpts]);
+        $fp = @stream_socket_client($transport . $cfg['host'] . ':' . $cfg['port'], $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $ctx);
         if (!$fp) {
             $this->lastError = "Could not connect to {$cfg['host']}:{$cfg['port']} ($errstr)";
             return false;
         }
-        stream_set_timeout($fp, 10);
+        stream_set_timeout($fp, 30);
 
         try {
             $this->expect($fp, 220);
@@ -126,9 +186,7 @@ class Mailer
             $this->cmd($fp, 'RCPT TO:<' . $to . '>', [250, 251]);
             $this->cmd($fp, 'DATA', 354);
 
-            $body = implode("\r\n", $this->headers($to, $subject, $cfg, $replyTo))
-                . "\r\n\r\n" . chunk_split(base64_encode($html));
-            // Dot-stuffing: any line starting with '.' must be escaped.
+            $body = $this->buildBody($to, $subject, $html, $cfg, $replyTo);
             $body = preg_replace('/^\./m', '..', $body);
             $this->cmd($fp, $body . "\r\n.", 250);
             $this->cmd($fp, 'QUIT', [221]);
@@ -188,10 +246,14 @@ function email_template(string $heading, string $bodyHtml): string
 {
     $name = esc(setting('site_name', 'Galilea Global Logistics'));
     $year = date('Y');
+    $logoHtml = '';
+    if (setting('email_logo', '') !== '') {
+        $logoHtml = '<img src="cid:logo@galilea" alt="' . $name . '" style="max-height:38px;vertical-align:middle;margin-right:12px">';
+    }
     return '<!DOCTYPE html><html><body style="margin:0;background:#f5f7fa;font-family:Arial,Helvetica,sans-serif;color:#1a2332">'
         . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f7fa;padding:24px 0"><tr><td align="center">'
         . '<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 24px rgba(6,21,40,.08)">'
-        . '<tr><td style="background:#0D2645;padding:22px 28px;color:#fff;font-size:18px;font-weight:bold">' . $name . '</td></tr>'
+        . '<tr><td style="background:#0D2645;padding:22px 28px;color:#fff;font-size:18px;font-weight:bold">' . $logoHtml . $name . '</td></tr>'
         . '<tr><td style="padding:28px"><h2 style="margin:0 0 14px;color:#0D2645;font-size:19px">' . esc($heading) . '</h2>'
         . $bodyHtml . '</td></tr>'
         . '<tr><td style="padding:16px 28px;background:#f5f7fa;color:#8a95a7;font-size:12px">&copy; ' . $year . ' ' . $name . ' · This is an automated message.</td></tr>'

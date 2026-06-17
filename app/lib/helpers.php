@@ -1,6 +1,28 @@
 <?php
 declare(strict_types=1);
 
+/* ─────────────────────────  Polyfills  ───────────────────────── */
+
+if (!function_exists('mb_substr')) {
+    function mb_substr($str, $start, $length = null, $encoding = null) {
+        return $length === null ? substr($str, $start) : substr($str, $start, $length);
+    }
+}
+if (!function_exists('mb_strlen')) {
+    function mb_strlen($str, $encoding = null) {
+        return strlen($str);
+    }
+}
+if (!function_exists('mb_strimwidth')) {
+    function mb_strimwidth($str, $start, $width, $trimmarker = '', $encoding = null) {
+        $truncated = substr($str, $start, $width);
+        if (strlen($str) > $width) {
+            $truncated = substr($truncated, 0, max(0, $width - strlen($trimmarker))) . $trimmarker;
+        }
+        return $truncated;
+    }
+}
+
 /* ─────────────────────────  Output / escaping  ───────────────────────── */
 
 /** HTML-escape a value for safe output. */

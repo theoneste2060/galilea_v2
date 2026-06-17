@@ -1,0 +1,19 @@
+Dear Jules,
+
+I kindly request your review of the Galilea Global Logistics website now live at https://www.galileagloballogistics.rw/
+
+Please verify the following functional features:
+
+• Homepage – brand messaging, service overview, company value proposition
+• Services section – completeness and accuracy of service descriptions
+• Shipment tracking tool
+• Contact page and inquiry submission
+• Overall navigation and user experience across desktop and mobile
+• CMS pages – About, Careers, Privacy, Terms, Cookies
+• Admin panel at /admin.php (username: Jules / Galilea@2025) – login, dashboard, content management, settings, user management
+
+Your feedback on the overall look, feel, and brand consistency would be greatly appreciated alongside any functional issues.
+
+Kind regards,
+Nzakizwanimana Theoneste
+CTO, NexVireon LTD

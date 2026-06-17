@@ -1,0 +1,22 @@
+Dear Cedric,
+
+I kindly request your review of the Galilea Global Logistics website now live at https://www.galileagloballogistics.rw/
+
+Please verify the following functional features:
+
+• Homepage – hero section, service highlights, Why Galilea, tracking widget, testimonials, newsletter signup
+• Services list & individual service detail pages (8 services) – content accuracy, images, layout
+• Shipment tracking – search by reference number
+• Contact & quote request form – submission, validation, email notification
+• Insights / News section – list and article detail pages
+• CMS pages – About, Careers, Privacy, Terms, Cookies
+• Navigation – main menu (Home, Services, Company mega-menu, Track & Trace), mobile menu, search
+• Footer – all links, newsletter subscription
+• Responsive design – mobile, tablet, and desktop layouts
+• Admin panel at /admin.php (username: cedric / Galilea@2025) – login, dashboard, manage services/pages/menus/settings, inquiries, subscribers, media, 2FA
+
+Please note any broken links, layout issues, missing content, or functionality that does not work as expected.
+
+Kind regards,
+Nzakizwanimana Theoneste
+CTO, NexVireon LTD

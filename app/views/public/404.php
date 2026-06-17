@@ -1,5 +1,5 @@
 <?php
-$meta = ['title' => 'Page not found — Galilea Global Logistics', 'description' => 'The page you are looking for could not be found.'];
+$meta = ['title' => 'Page not found | Galilea Global Logistics', 'description' => 'The page you are looking for could not be found.'];
 require __DIR__ . '/partials/head.php';
 ?>
 <header class="page-hero">
